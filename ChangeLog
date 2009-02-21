@@ -1,0 +1,17 @@
+2009-02-21 00:49  spuriousdata
+
+	* src/main.c: Added help and verbose text, renamed do_connect to
+	  connect_serverlist, refactored get_servername, added comments
+	  about dynamically allocated memory
+
+2009-02-20 13:15  spuriousdata
+
+	* COPYING, Makefile.am, acinclude.m4, autogen.sh, configure.ac,
+	  src, src/Makefile.am, src/host.h, src/lexer.l, src/main.c,
+	  src/mci.conf-sample, src/mk_lex_line.py, src/parser.y,
+	  src/rl_complete.c, src/socks.c, src/term.c: Initial Import
+
+2009-02-13 19:18  spuriousdata
+
+	* .: Creating initial directories
+

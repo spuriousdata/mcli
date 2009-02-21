@@ -30,6 +30,7 @@ char *responses[NUMRESP] = {
 
 int *socks, num_connections = 0;
 int with_server = -1;
+int i_verbose = 0;
 
 extern struct __mchost *head;
 extern int _conf_max_connections;
@@ -47,7 +48,7 @@ int check_end_mc_response(char *);
 char *get_pager(void);
 int initialize(void);
 int configure(void);
-int do_connect(void);
+int connect_serverlist(void);
 int cleanup(void);
 char *get_active_servername(void);
 char *get_servername(int);
@@ -102,6 +103,8 @@ int communicate(char *msg)
 				return -1;
 			}
 	
+			if (i_verbose) printf("Response from %d: %s\n", i, get_servername(i));
+			
 			do {
 				memset(&buf, 0, BUFSIZ);
 				if ((numbytes = recv(socks[i], &buf, BUFSIZ, 0)) == -1) {
@@ -138,7 +141,10 @@ int internal_command(char *s)
 	if (strncmp(s, "quit", 4) == 0) {
 		exit(0);
 	} else if (strncmp(s, "help", 4) == 0) {
-		//print help
+		printf("list:          list connected servers\n");
+		printf("help:          this help\n");
+		printf("with <number>: bind commands to single server <number>\n");
+		printf(" note that with will never bind 'get' or 'gets' calls\n");
 		return 1;
 	} else if (strncmp(s, "with", 4) == 0) {
 		sscanf(s, "with %d", &with_server);	
@@ -152,6 +158,11 @@ int internal_command(char *s)
 			printf(" %d: %s\n", i, t);
 			free(t);
 		}
+		return 1;
+	} else if (strncmp(s, "verbose", 7) == 0) {
+		if (i_verbose == 0) i_verbose = 1;
+		else i_verbose = 0;
+		printf("verbose: %s\n", ((i_verbose) ? "on" : "off"));
 		return 1;
 	}
 	return 0;
@@ -181,7 +192,7 @@ char *get_pager(void)
 int initialize(void)
 {
 	if (configure() != 0) return -1;
-	if (do_connect() != 0) return -1;
+	if (connect_serverlist() != 0) return -1;
 	return 0;
 }
 
@@ -197,7 +208,7 @@ int configure(void)
 	return 0;
 }
 
-int do_connect(void)
+int connect_serverlist(void)
 {
 	struct __mchost *e;
 	struct hostent *host;
@@ -256,16 +267,18 @@ int cleanup(void)
 	return 0;
 }
 
+/* returns pointer to newly allocated string -- caller must free */
 char *get_active_servername(void)
 {
 	return get_servername(with_server);
 }
 
+/* returns pointer to newly allocated string -- caller must free */
 char *get_servername(int snum)
 {
 	struct __mchost *e;
 	int len, i = 0;
-	char *port, *server;
+	char *server;
 
 	if (snum < 0) {
 		asprintf(&server, "All");
@@ -278,17 +291,7 @@ char *get_servername(int snum)
 		e = e->__next;
 	}
 	
-	asprintf(&port, "%d", e->port);
-	/*       host           :   port          \0 */
-	len = strlen(e->host) + 1 + strlen(port) + 1;
-
-	server = (char *)malloc(len);
-	memset(server, 0, len);
-	strcat(server, e->host);
-	strcat(server, ":");
-	strcat(server, port);
-
-	free(port);
+	asprintf(&server, "%s:%d", e->host, e->port);
 
 	return server;
 }

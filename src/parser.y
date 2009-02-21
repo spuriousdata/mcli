@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <arpa/inet.h>
 
-#include "host.h"
+#include "mci.h"
 
 struct __mchost *head = NULL;
 struct __mchost *tail = NULL;

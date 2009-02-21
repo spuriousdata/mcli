@@ -6,15 +6,7 @@
 #include <netdb.h>
 #include <string.h>
 
-extern int _conf_use_socks;
-extern int _conf_socks_proto;
-extern int _conf_socks_port;
-extern char *_conf_socks_username;
-extern char *_conf_socks_host;
-extern char *_conf_socks_password;
-
-int socksify(struct sockaddr_in *destaddr);
-int socks5_connect(struct sockaddr_in *destaddr);
+#include "socks.h"
 
 int socksify(struct sockaddr_in *destaddr)
 {
@@ -65,7 +57,7 @@ int socks5_connect(struct sockaddr_in *destaddr)
 	printf("Connected to socks proxy %s:%d\n", _conf_socks_host, _conf_socks_port);
 #endif
 
-	sendrecv(socks5_sockfd, &sockspkt, (_conf_socks_username ? 4 : 3), &socksresp, BUFSIZ);
+	sendrecv(socks5_sockfd, sockspkt, (_conf_socks_username ? 4 : 3), socksresp, BUFSIZ);
 
 	if (socksresp[0] != 5) {
 		close(socks5_sockfd);
@@ -92,7 +84,7 @@ int socks5_connect(struct sockaddr_in *destaddr)
 		sockspkt[2+ulen] = plen;
 		memcpy((sockspkt+2+ulen+1), _conf_socks_password, plen); // copy in the password
 		
-		sendrecv(socks5_sockfd, &sockspkt, (1 + 1 + ulen + 1 + plen), &socksresp, BUFSIZ);
+		sendrecv(socks5_sockfd, sockspkt, (1 + 1 + ulen + 1 + plen), socksresp, BUFSIZ);
 
 		if (socksresp[0] != 1) {
 			close(socks5_sockfd);
@@ -117,7 +109,7 @@ int socks5_connect(struct sockaddr_in *destaddr)
 	memcpy((sockspkt+4), &(destaddr->sin_addr.s_addr), 4);
 	memcpy((sockspkt+8), &(destaddr->sin_port), 2);
 
-	sendrecv(socks5_sockfd, &sockspkt, 10, &socksresp, BUFSIZ);
+	sendrecv(socks5_sockfd, sockspkt, 10, socksresp, BUFSIZ);
 
 	if (socksresp[0] != 5) {
 		close(socks5_sockfd);

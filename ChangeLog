@@ -1,3 +1,16 @@
+2009-02-21 01:52  spuriousdata
+
+	* src/host.h, src/main.c: maintenance on last commit
+
+2009-02-21 01:51  spuriousdata
+
+	* configure.ac, src/Makefile.am, src/parser.y, src/rl_complete.c,
+	  src/socks.c: Made *.h files, renamed main.c mci.c
+
+2009-02-21 00:51  spuriousdata
+
+	* ChangeLog: Added Changelog
+
 2009-02-21 00:49  spuriousdata
 
 	* src/main.c: Added help and verbose text, renamed do_connect to

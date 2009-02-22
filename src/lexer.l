@@ -14,6 +14,7 @@
 %s _SOCKS_PORT
 %s _SOCKS_USERNAME
 %s _SOCKS_PASSWORD
+%s _SOCKS_DNS
 
 digit		[0-9]
 number		{digit}+
@@ -38,6 +39,7 @@ any			.*
 <INITIAL>[Ss][Oo][Cc][Kk][Ss][_][Pp][Oo][Rr][Tt]										{BEGIN _SOCKS_PORT; return SOCKS_PORT;}
 <INITIAL>[Ss][Oo][Cc][Kk][Ss][_][Uu][Ss][Ee][Rr][Nn][Aa][Mm][Ee]						{BEGIN _SOCKS_USERNAME; return SOCKS_USERNAME;}
 <INITIAL>[Ss][Oo][Cc][Kk][Ss][_][Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]						{BEGIN _SOCKS_PASSWORD; return SOCKS_PASSWORD;}
+<INITIAL>[Ss][Oo][Cc][Kk][Ss][_][Dd][Nn][Ss]											{BEGIN _SOCKS_DNS; return SOCKS_DNS;}
 
 <_SERVER>:																				{BEGIN _PORT; return PORT;}
 
@@ -48,7 +50,8 @@ any			.*
 <_MAX_CONNECTIONS>{number}																{yylval.number = strtol(yytext, NULL, 10); return NUMBER;}
 
 <_USE_SOCKS>{number}																	{yylval.number = strtol(yytext, NULL, 10); return NUMBER;}
-<_SOCKS_PROTO>{number}																{yylval.number = strtol(yytext, NULL, 10); return NUMBER;}
+<_SOCKS_DNS>{number}																	{yylval.number = strtol(yytext, NULL, 10); return NUMBER;}
+<_SOCKS_PROTO>{number}																	{yylval.number = strtol(yytext, NULL, 10); return NUMBER;}
 <_SOCKS_PORT>{number}																	{yylval.number = strtol(yytext, NULL, 10); return PORTNUM;}
 
 <_SOCKS_HOST>{hostname}																	{yylval.string = strdup(yytext); return HOSTNAME;}

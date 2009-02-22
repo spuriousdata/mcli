@@ -14,6 +14,7 @@ int _conf_max_connections = 10;
 int _conf_use_socks = 0;
 int _conf_socks_proto = 5;
 int _conf_socks_port = 1080;
+int _conf_socks_dns = 0;
 char *_conf_socks_host = NULL;
 char *_conf_socks_username = NULL;
 char *_conf_socks_password = NULL;
@@ -24,7 +25,7 @@ int tport = -1;
 int add_serverentry(char *, int);
 %}
 
-%token SERVER PORT MAX_CONNECTIONS USE_SOCKS SOCKS_PROTO SOCKS_PORT SOCKS_HOST SOCKS_USERNAME SOCKS_PASSWORD
+%token SERVER PORT MAX_CONNECTIONS USE_SOCKS SOCKS_PROTO SOCKS_PORT SOCKS_HOST SOCKS_USERNAME SOCKS_PASSWORD SOCKS_DNS
 
 %union {
 	char *string;
@@ -54,6 +55,12 @@ directive: port_directive
 socks_directive: USE_SOCKS NUMBER
 				{
 					_conf_use_socks = $2;
+				}
+				;
+
+socks_directive: SOCKS_DNS NUMBER
+				{
+					_conf_socks_dns = $2;
 				}
 				;
 

@@ -12,6 +12,7 @@
 #include <signal.h>
 #include <errno.h>
 #include "mci.h"
+#include "connection.h"
 
 int i_verbose = 0;
 int *socks, num_connections = 0;
@@ -52,15 +53,11 @@ int main(int argc, char **argv)
 		if (internal_command(command)) continue;
 
 		if (command && *command) add_history(command);
-#ifdef DEBUG
-		printf("Sending(%s)\n", command);
-#else
 		msg = (char *)malloc(strlen(command) + 2);
 		memcpy(msg, command, strlen(command));
 		strcat(msg, "\r\n");
 		communicate(msg);
 		free(msg);
-#endif		
 	}
 
 	if (cleanup() != 0) return -1;
@@ -187,35 +184,20 @@ int configure(void)
 int connect_serverlist(void)
 {
 	struct __mchost *e;
-	struct hostent *host;
-	struct sockaddr_in sa;
-	int state,sockfd;
+	int sockfd;
 
 	e = head;
 
 	do {
-		if ((host = gethostbyname(e->host)) == 0) {
-			fprintf(stderr, "Cannot find host: %s\n", e->host);
-			return -1;
-		}
-
-		memset(&sa, 0, sizeof(sa));
-		sa.sin_family = AF_INET;
-		sa.sin_port = htons(e->port);
-
-		memcpy(&(sa.sin_addr), host->h_addr, host->h_length);
-
-		if ((sockfd = socksify(&sa)) == -1) {
+		if ((sockfd = socksify(e->host, e->port)) == -1) {
 			fprintf(stderr, "Error with socks connection\n");
 			return -1;
 		} else if (sockfd == 0) {
-			// barefoot
-			socks[num_connections] = socket(AF_INET, SOCK_STREAM, 0);
-			if ((state = connect(socks[num_connections++], (const struct sockaddr *)&sa, sizeof(sa))) < 0) {
-				fprintf(stderr, "Cannot connect to server\n");
-				return state;
+			// don't use socks
+			if ((socks[num_connections++] = open_connection(e->host, e->port)) == -1) {
+				fprintf(stderr, "Error connecting to socket\n");
+				return -1;
 			}
-			printf("Connected to %s:%d\n", e->host, e->port);
 		} else {
 			// use socks
 			socks[num_connections++] = sockfd;

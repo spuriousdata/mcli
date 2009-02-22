@@ -1,3 +1,31 @@
+2009-02-22 20:54  spuriousdata
+
+	* ., src, src/Makefile.am, src/connection.c, src/connection.h,
+	  src/lexer.l, src/mci.c, src/parser.y, src/socks.c, src/socks.h:
+	  added socks dns lookup and broke out general connection function
+	  into connection.c
+
+2009-02-21 01:56  spuriousdata
+
+	* src:
+
+2009-02-21 01:56  spuriousdata
+
+	* ., src: svn:ignore
+
+2009-02-21 01:55  spuriousdata
+
+	* src/parser.h:
+
+2009-02-21 01:54  spuriousdata
+
+	* src/mci.c, src/mci.h, src/parser.h, src/rl_complete.h,
+	  src/socks.h: maintenance on last commit
+
+2009-02-21 01:53  spuriousdata
+
+	* ChangeLog: ChangeLog
+
 2009-02-21 01:52  spuriousdata
 
 	* src/host.h, src/main.c: maintenance on last commit

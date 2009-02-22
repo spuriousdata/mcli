@@ -3,21 +3,18 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
 #include <unistd.h>
-#include <readline/readline.h>
-#include <readline/history.h>
 #include <signal.h>
 #include <errno.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 #include "mci.h"
 #include "connection.h"
 
 int i_verbose = 0;
 int *socks, num_connections = 0;
 int with_server = -1;
-char *responses[NUMRESP] = {
+char *responses[] = {
 	"ERROR\r\n",
 	"CLIENT_ERROR",
 	"SERVER_ERROR",
@@ -27,7 +24,8 @@ char *responses[NUMRESP] = {
 	"STORED\r\n",
 	"NOT_STORED\r\n",
 	"EXISTS\r\n",
-	"NOT_FOUND\r\n"
+	"NOT_FOUND\r\n",
+	NULL
 };
 
 int main(int argc, char **argv)
@@ -53,6 +51,7 @@ int main(int argc, char **argv)
 		if (internal_command(command)) continue;
 
 		if (command && *command) add_history(command);
+		else continue;
 		msg = (char *)malloc(strlen(command) + 2);
 		memcpy(msg, command, strlen(command));
 		strcat(msg, "\r\n");
@@ -143,9 +142,11 @@ int internal_command(char *s)
 
 int check_end_mc_response(char *buf)
 {
-	int i;
-	for (i = 0; i < NUMRESP; i++) {
-		if (strstr(buf, responses[i]) != NULL) return 1;
+	int i = 0;
+	char *response;
+
+	while ((response = responses[i++]) != NULL) {
+		if (strstr(buf, response) != NULL) return 1;
 	}
 
 	return 0;

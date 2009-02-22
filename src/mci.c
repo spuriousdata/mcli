@@ -49,6 +49,7 @@ int main(int argc, char **argv)
 
 		command = readline("memcache> ");
 		if (internal_command(command)) continue;
+		command = check_set(command);
 
 		if (command && *command) add_history(command);
 		else continue;
@@ -61,6 +62,52 @@ int main(int argc, char **argv)
 
 	if (cleanup() != 0) return -1;
 	return 0;
+}
+
+/* if comand is a set command, return a newly allocated string containing whole set command
+ * else return original command
+ */
+char *check_set(char *command)
+{
+	char *setcmd, *tmp;
+	int j1, j2, datalen;
+
+	if (strncmp(command, "set", 3) != 0 ) return command;
+
+	sscanf(command, "set %s %d %d %d", tmp, &j1, &j2, &datalen); // j1 & j2 are junk and we don't care what they are
+
+	if ((setcmd = (char *)malloc(strlen(command) + 3)) == NULL) {
+		fprintf(stderr, "Error allocating memory\n");
+		exit(-1);
+	}
+	memset(setcmd, 0, strlen(command) + 3);
+	memcpy(setcmd, command, strlen(command));
+	strcat(setcmd, "\r\n");
+
+	free(command);
+
+	fputs("set> ", stdout);
+	if ((command = (char *)malloc(datalen)) == NULL) {
+		fprintf(stderr, "Error allocating memory\n");
+		exit(-1);
+	}
+
+	memset(command, 0, datalen);
+
+	if (fread(command, 1, datalen, stdin) != datalen) {
+		fprintf(stderr, "Error reading set command from stdin\nexiting\n");	
+		free(command);
+		exit(-1);
+	}
+
+	tmp = setcmd;
+	setcmd = (char *)malloc(strlen(setcmd) + datalen);
+	memset(setcmd, 0, strlen(setcmd) + datalen);
+	strncat(setcmd, tmp, strlen(tmp));
+	strncat(setcmd, command, datalen);
+	free(tmp);
+	free(command);
+	return setcmd;
 }
 
 int communicate(char *msg)

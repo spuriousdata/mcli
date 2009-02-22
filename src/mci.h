@@ -30,5 +30,6 @@ int cleanup(void);
 char *get_active_servername(void);
 char *get_servername(int);
 int communicate(char *);
+char *check_set(char *command);
 
 #endif

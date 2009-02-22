@@ -1,6 +1,7 @@
 2009-02-22 20:54  spuriousdata
 
-	* ., src, src/Makefile.am, src/connection.c, src/connection.h,
+	* ., src: svn:ignore
+	* src/Makefile.am, src/connection.c, src/connection.h,
 	  src/lexer.l, src/mci.c, src/parser.y, src/socks.c, src/socks.h:
 	  added socks dns lookup and broke out general connection function
 	  into connection.c

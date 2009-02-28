@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT(mci, 0.0.1)
+AC_INIT(mci, 0.0.2)
 AM_INIT_AUTOMAKE([foreign]) dnl 'foreign' says not to check for gnu-package-standards (requiring NEWS, README, ChangeLog, etc)
 AC_CONFIG_SRCDIR([src/mci.c])
 AC_CONFIG_HEADER([config.h])
@@ -35,7 +35,7 @@ AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
 AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MALLOC
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS([gethostbyname memset socket strdup strstr strerror strtol])
+AC_CHECK_FUNCS([gethostbyname memset socket strdup strstr strerror strtol getopt])
 
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT

@@ -10,10 +10,14 @@
 #include <readline/history.h>
 #include "mci.h"
 #include "connection.h"
+#include "configure.h"
 
 int i_verbose = 0;
 int *socks, num_connections = 0;
 int with_server = -1;
+char *conf_file = NULL;
+int verbose = 0;
+
 char *responses[] = {
 	"ERROR\r\n",
 	"CLIENT_ERROR",
@@ -33,10 +37,13 @@ int main(int argc, char **argv)
 	int port;
 	char *msg, *command = (char *)NULL;
 
+	if (parseopts(argc, argv) != 0) return -1;
+
 	if (initialize() == -1) return -1;
 
+	/* TODO: Add output to pager for output content longer than screen */
 	//resize_handler(SIGWINCH); // set up resize_signal_handler
-	get_pager();
+	//get_pager();
 
 	initialize_readline();
 
@@ -199,6 +206,7 @@ int check_end_mc_response(char *buf)
 	return 0;
 }
 
+/*
 char *get_pager(void)
 {
 	char *pager;
@@ -208,6 +216,41 @@ char *get_pager(void)
 	} else {
 		return "more";
 	}
+}
+*/
+
+int parseopts(int argc, char **argv)
+{
+	int o;
+
+	while ((o = getopt(argc, argv, "vhc:s:")) != -1) {
+		switch(o) {
+			case 'v':
+				verbose = 1;
+				break;
+			case 'c':
+				conf_file = optarg;
+				break;
+			case 's':
+				if (add_serverentry_str(optarg) == -1) {
+					fprintf(stderr, "There was an error adding the server %s\n", optarg);
+					usage(argv[0]);
+					exit(-1);
+				}
+				break;
+			case 'h':
+			case '?':
+			default:
+				usage(argv[0]);
+				exit(-1);
+		}
+	}
+	return 0;
+}
+
+void usage(char *name)
+{
+	printf ("usage: %s [-v] [-c /path/to/config/file] [[-s server1:port] [-s srver2:port] [...]] [-h]\n", name);
 }
 
 int initialize(void)
@@ -222,8 +265,10 @@ int configure(void)
 #ifdef DEBUG
 	yydebug = 1;
 #endif
-	yyin = fopen("./mci.conf", "r");
-	yyparse();
+	if (conf_file != NULL) yyin = fopen(conf_file, "r");
+	else if ((yyin = fopen("./mci.conf", "r")) != NULL) {
+		yyparse();
+	}
 
 	if ((socks = (int *)malloc(sizeof(int) * _conf_max_connections)) == NULL) return -ENOMEM;
 	return 0;
@@ -234,7 +279,7 @@ int connect_serverlist(void)
 	struct __mchost *e;
 	int sockfd;
 
-	e = head;
+	e = sl_head;
 
 	do {
 		if ((sockfd = socksify(e->host, e->port)) == -1) {
@@ -263,7 +308,7 @@ int cleanup(void)
 		close(socks[i]);
 	}
 
-	e = head;
+	e = sl_head;
 	do {
 		f = e->__next;
 		free(e->host);
@@ -291,7 +336,7 @@ char *get_servername(int snum)
 		return server;
 	}
 
-	e = head;
+	e = sl_head;
 
 	while (i++ != snum) {
 		e = e->__next;

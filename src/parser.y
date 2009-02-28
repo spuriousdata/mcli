@@ -7,9 +7,11 @@
 #include <arpa/inet.h>
 
 #include "mci.h"
+#include "configure.h"
 
-struct __mchost *head = NULL;
-struct __mchost *tail = NULL;
+extern struct __mchost *sl_head;
+extern struct __mchost *sl_tail;
+
 int _conf_max_connections = 10;
 int _conf_use_socks = 0;
 int _conf_socks_proto = 5;
@@ -22,7 +24,6 @@ char *_conf_socks_password = NULL;
 char *thost = NULL;
 int tport = -1;
 
-int add_serverentry(char *, int);
 %}
 
 %token SERVER PORT MAX_CONNECTIONS USE_SOCKS SOCKS_PROTO SOCKS_PORT SOCKS_HOST SOCKS_USERNAME SOCKS_PASSWORD SOCKS_DNS
@@ -140,25 +141,6 @@ port_directive: PORT PORTNUM
                 ;
 
 %%
-
-int add_serverentry(char *host, int port)
-{
-	struct __mchost *e;
-
-	if ((e = (struct __mchost *)malloc(sizeof(struct __mchost))) == NULL) return -1;
-	e->host = host;
-	e->port = port;
-	e->__next = NULL;
-
-	if (head == NULL) {
-		head = tail = e;
-	} else {
-		tail->__next = e;
-		tail = tail->__next;
-	}
-
-	return 0;
-}
 
 int yyerror(char *s)
 {

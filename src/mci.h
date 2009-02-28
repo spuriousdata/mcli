@@ -10,7 +10,7 @@ struct __mchost {
 	struct __mchost *__next;
 };
 
-extern struct __mchost *head;
+extern struct __mchost *sl_head;
 extern int _conf_max_connections;
 
 extern FILE *yyin;
@@ -19,6 +19,10 @@ extern int yyparse();
 extern int yydebug;
 #endif
 extern void initialize_readline();
+
+extern char *optarg;
+extern int optind;
+extern int errno;
 
 int internal_command(char *);
 int check_end_mc_response(char *);
@@ -31,5 +35,7 @@ char *get_active_servername(void);
 char *get_servername(int);
 int communicate(char *);
 char *check_set(char *command);
+int parseopts(int argc, char **argv);
+void usage(char *);
 
 #endif

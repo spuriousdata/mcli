@@ -9,3 +9,5 @@ all: uipy
 %.py : %.ui
 	$(PYGEN) -d $< > $@
 
+clean:
+	rm -f $(PY)

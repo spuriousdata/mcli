@@ -7,7 +7,7 @@ uipy: $(PY)
 all: uipy
 
 %.py : %.ui
-	$(PYGEN) -d $< > $@
+	$(PYGEN) $< > $@
 
 clean:
-	rm -f $(PY)
+	rm -f $(PY) *.pyc

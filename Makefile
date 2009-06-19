@@ -2,12 +2,14 @@ PYGEN=pyuic4
 
 PY=ui_mci.py ui_connect_dialog.py
 
+all: uipy config
+
 uipy: $(PY)
 
-config:
-	cp mci.ini-sample mci.ini
+config: mci.ini
 
-all: uipy config
+mci.ini : mci.ini-sample
+	cp mci.ini-sample mci.ini
 
 %.py : %.ui
 	$(PYGEN) $< > $@

@@ -4,7 +4,10 @@ PY=ui_mci.py ui_connect_dialog.py
 
 uipy: $(PY)
 
-all: uipy
+config:
+	cp mci.ini-sample mci.ini
+
+all: uipy config
 
 %.py : %.ui
 	$(PYGEN) $< > $@

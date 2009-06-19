@@ -6,7 +6,7 @@ class Configuration(ConfigParser):
     def __init__(self):
         super().__init__(self)
         self.verbose = False
-        self.cfile = './mci.conf'
+        self.cfile = './mci.ini'
         try:
             opts, args = getopt(sys.argv[1:], "vhc:s:", ["help"])
         except GetoptError:

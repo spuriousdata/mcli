@@ -1,0 +1,8 @@
+[general]
+verbose = True
+
+[socks]
+protocol = 5
+dns = True
+hostname = localhost
+port = 8000

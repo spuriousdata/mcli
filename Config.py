@@ -1,10 +1,10 @@
-from ConfigParser import ConfigParser
+from ConfigParser import SafeConfigParser, NoOptionError, NoSectionError
 from getopt import getopt, GetoptError
 import sys, os
 
-class Configuration(ConfigParser):
-    def __init__(self):
-        super().__init__(self)
+class Configuration(SafeConfigParser):
+    def __init__(self, defaults = {}):
+        SafeConfigParser.__init__(self, defaults)
         self.verbose = False
         self.cfile = './mci.ini'
         try:
@@ -14,7 +14,9 @@ class Configuration(ConfigParser):
             sys.exit(-1)
 
         for o,a in opts:
-            if o == '-v': self.verbose = True
+            if o == '-v':
+                self.verbose = True
+                self.set('general', 'verbose', 'True')
             if o == '-c': self.cfile = a
             if o == '-s': self.addserver(a)
             for o in ('-h', '--help'):
@@ -31,9 +33,20 @@ class Configuration(ConfigParser):
             print "Error opening file %s, %s" % (self.cfile, e)
             sys.exit(-1)
 
-    def usage()
-        print "usage: %s [-v] [-c /path/to/config/file] ",
-            "[[-s server1:port] [-s server2:port] [...]] [-h|--help]\n" % (sys.argv[0])
+    def get(self, section, name, raw=False, vars=None):
+        try:
+            val = SafeConfigParser.get(self, section, name, raw, vars)
+            if val.lower() == 'true': val = True
+            elif val.lower() == 'false': val = False
+            return val
+        except NoSectionError:
+            return None
+        except NoOptionError:
+            return None
+
+    def usage(self):
+        print """usage: %s [-v] [-c /path/to/config/file] \
+            [[-s server1:port] [-s server2:port] [...]] [-h|--help]\n""" % (sys.argv[0])
 
 
-    
+

@@ -5,14 +5,15 @@ from connect_dialog import ConnectDialog
 class Mci(qt.QMainWindow):
     def __init__(self, parent):
         qt.QMainWindow.__init__(self)
+        self.connect_dialog = None
         self.ui = Ui_McIClass()
         self.ui.setupUi(self)
 
-        self.connect(self.ui.action_quick_connect, core.SIGNAL("triggered()"), self, core.SLOT("openConnectDialog()"))
-        self.connect(self.ui.add_button, core.SIGNAL("clicked()"), self, core.SLOT("addClicked()"))
-        self.connect(self.ui.delete_button, core.SIGNAL("clicked()"), self, core.SLOT("deleteClicked()"))
-        self.connect(self.ui.get_button, core.SIGNAL("clicked()"), self, core.SLOT("getClicked()"))
-        self.connect(self.ui.flushall_button, core.SIGNAL("clicked()"), self, core.SLOT("flushallClicked()"))
+        self.ui.action_quick_connect.triggered.connect(self.openConnectDialog)
+        self.ui.add_button.clicked.connect(self.addClicked)
+        self.ui.delete_button.clicked.connect(self.deleteClicked)
+        self.ui.get_button.clicked.connect(self.getClicked)
+        self.ui.flushall_button.clicked.connect(self.flushallClicked)
 
     def openConnectDialog(self):
         if self.connect_dialog == None:
@@ -22,7 +23,7 @@ class Mci(qt.QMainWindow):
         self.connect_dialog.raise_()
         self.connect_dialog.activateWindow()
 
-        self.connect(self.connect_dialog.mc, core.SIGNAL("hasNewStats()"), self, core.SLOT("displayStats()"))
+        #self.connect_dialog.mc, core.SIGNAL("hasNewStats()"), self, core.SLOT("displayStats()"))
 
     def displayStats(self):
         pass

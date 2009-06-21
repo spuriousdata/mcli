@@ -19,10 +19,10 @@ class socks(socket.socket):
 
         socks_host = config.get('socks', 'hostname')
         socks_port = config.get('socks', 'port')
-        socks_use_dns = config.get('socks', 'socks_dns')
+        socks_use_dns = config.get('socks', 'dns')
         socks_proto = config.get('socks', 'protocol')
         if socks_proto == None: socks_proto = 5
-        
+
         if socks_proto == 5:
             socks_user = config.get('socks', 'userame')
             socks_pass = config.get('socks', 'password')

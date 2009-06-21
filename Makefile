@@ -1,10 +1,10 @@
 PYGEN=pyuic4
 
-PY=ui_mci.py ui_connect_dialog.py
+PYC=$(shell echo `ls *ui *py` | sed 's/\.py/\.pyc/g' | sed 's/\.ui/\.pyc/g')
 
-all: uipy config
+all: config objs
 
-uipy: $(PY)
+objs: $(PYC)
 
 config: mci.ini
 
@@ -14,5 +14,8 @@ mci.ini : mci.ini-sample
 %.py : %.ui
 	$(PYGEN) $< > $@
 
+%.pyc : %.py
+	python -m py_compile $<
+
 clean:
-	rm -f $(PY) *.pyc
+	rm -f ui_*.py *.pyc

@@ -1,6 +1,7 @@
 from PyQt4 import QtGui as qt, QtCore as core
 from ui_mci import Ui_McIClass
 from connect_dialog import ConnectDialog
+from memcache import Memcache
 
 class Mci(qt.QMainWindow):
     def __init__(self, parent):
@@ -24,6 +25,10 @@ class Mci(qt.QMainWindow):
         self.connect_dialog.activateWindow()
 
         #self.connect_dialog.mc, core.SIGNAL("hasNewStats()"), self, core.SLOT("displayStats()"))
+
+    def memcache_connect(self):
+        self.mc = Memcache(self.connect_dialog.servers)
+        self.mc.connect()
 
     def displayStats(self):
         pass

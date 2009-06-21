@@ -10,16 +10,12 @@ class ConnectDialog(qt.QDialog):
         self.ui.setupUi(self)
 
         self.ui.addserver_button.clicked.connect(self.addServerClicked)
-        self.ui.buttonBox.button(qt.QDialogButtonBox.Ok).clicked.connect(self.memcache_connect)
+        self.ui.buttonBox.button(qt.QDialogButtonBox.Ok).clicked.connect(parent.memcache_connect)
         self.ui.scrolling_contents.setLayout(qt.QVBoxLayout())
         self.ui.scrolling_contents.layout().setContentsMargins(0, 0, 0, 0)
 
     def addServerClicked(self):
         self.addHostEntry()
-
-    def memcache_connect(self):
-        pass
-        #mc.mc_connect(self.servers)
 
     def retab(self):
         last = qt.QWidget()

@@ -1,6 +1,6 @@
 from ConfigParser import SafeConfigParser, NoOptionError, NoSectionError
 from getopt import getopt, GetoptError
-import sys, os
+import sys
 
 class Configuration(SafeConfigParser):
     def __init__(self, defaults = {}):
@@ -24,6 +24,14 @@ class Configuration(SafeConfigParser):
                 sys.exit(-1)
 
         self.configure(self.cfile)
+
+    def addserver(self, server):
+        s = self.get('memcache', 'servers')
+        if s is not None:
+            s += "," + server
+        else:
+            s = server
+        self.set('memcache', 'servers', s)
 
     def configure(self, _file):
         self.configfile = _file

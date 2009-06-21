@@ -6,3 +6,9 @@ protocol = 5
 dns = True
 hostname = localhost
 port = 8000
+
+[memcache]
+# I really didn't want to use a comma-delimited list
+# but the built-in ConfigParser doesn't have any way to
+# specify a list (server=, server=, server=, etc)
+servers = localhost:11111,localhost:11112

@@ -1,5 +1,5 @@
 import socket
-from main import config
+from Config import config
 from struct import Struct
 
 class socks(socket.socket):
@@ -12,15 +12,15 @@ class socks(socket.socket):
     connect_ip4_pkt = Struct("BBBBIh")
 
     def __init__(self, family=2, type=1, proto=0):
-        super().__init__(self, family, type, proto)
+        socket.socket.__init__(self, int(family), type, proto)
 
     def connect(self, *args):
-        host,port = args[0]
+        host,port = args
 
         socks_host = config.get('socks', 'hostname')
         socks_port = config.get('socks', 'port')
         socks_use_dns = config.get('socks', 'dns')
-        socks_proto = config.get('socks', 'protocol')
+        socks_proto = int(config.get('socks', 'protocol'))
         if socks_proto == None: socks_proto = 5
 
         if socks_proto == 5:
@@ -29,7 +29,7 @@ class socks(socket.socket):
 
         if config.get('general', 'verbose') == True:
             print "Connecting to SOCKS%d proxy" % socks_proto
-        super().connect((socks_host, socks_port))
+        super(socks,self).connect((socks_host, int(socks_port)))
 
         size = 0
         data = None

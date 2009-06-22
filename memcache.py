@@ -1,5 +1,5 @@
-from socketfactory import socketfactory
-from main import config
+import socketfactory
+import socket
 
 class Memcache:
     def __init__(self, servers = []):
@@ -8,9 +8,9 @@ class Memcache:
 
     def connect(self):
         for server in self.servers:
-            socket = socketfactory.get_socket(socket.AF_INET, socket.SOCK_STREAM)
-            socket.connect(server.host, server.port)
-            self.sockets.append(socket)
+            sock = socketfactory.get_socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect(server.host.text(), int(server.port.text()))
+            self.sockets.append(sock)
 
     def disconnect(self):
         for socket in self.sockets:

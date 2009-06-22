@@ -101,6 +101,7 @@
      <string>&amp;File</string>
     </property>
     <addaction name="action_quick_connect"/>
+    <addaction name="action_properties"/>
    </widget>
    <widget class="QMenu" name="menu_Edit">
     <property name="title">
@@ -122,6 +123,11 @@
   <action name="action_quick_connect">
    <property name="text">
     <string>&amp;Quick Connect</string>
+   </property>
+  </action>
+  <action name="action_properties">
+   <property name="text">
+    <string>Properties</string>
    </property>
   </action>
  </widget>

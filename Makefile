@@ -1,6 +1,7 @@
 PYGEN=pyuic4
 
 PYC=$(shell echo `ls *ui *py` | sed 's/\.py/\.pyc/g' | sed 's/\.ui/\.pyc/g')
+INT=$(shell echo `ls *ui` | sed 's/\.ui/\.py/g')
 
 all: config objs
 
@@ -19,3 +20,5 @@ mci.ini : mci.ini-sample
 
 clean:
 	rm -f ui_*.py *.pyc
+
+.SECONDARY: $(INT)

@@ -40,6 +40,9 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -180,7 +183,7 @@
         <widget class="QLineEdit" name="socks_username"/>
        </item>
        <item row="3" column="0">
-        <widget class="QLabel" name="label_4">
+        <widget class="QLabel" name="socks_password_label">
          <property name="text">
           <string>Password:</string>
          </property>

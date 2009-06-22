@@ -2,6 +2,7 @@ from ConfigParser import SafeConfigParser, NoOptionError, NoSectionError
 from getopt import getopt, GetoptError
 import sys
 
+
 class Configuration(SafeConfigParser):
     def __init__(self, defaults = {}):
         SafeConfigParser.__init__(self, defaults)
@@ -56,5 +57,6 @@ class Configuration(SafeConfigParser):
         print """usage: %s [-v] [-c /path/to/config/file] \
             [[-s server1:port] [-s server2:port] [...]] [-h|--help]\n""" % (sys.argv[0])
 
+config = Configuration()
 
 

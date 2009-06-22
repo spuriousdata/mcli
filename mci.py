@@ -1,16 +1,19 @@
-from PyQt4 import QtGui as qt, QtCore as core
+from PyQt4 import QtGui as qt
 from ui_mci import Ui_McIClass
 from connect_dialog import ConnectDialog
+from proxy_config import ProxyConfig
 from memcache import Memcache
 
 class Mci(qt.QMainWindow):
     def __init__(self, parent):
         qt.QMainWindow.__init__(self)
         self.connect_dialog = None
+        self.properties_dialog = None
         self.ui = Ui_McIClass()
         self.ui.setupUi(self)
 
         self.ui.action_quick_connect.triggered.connect(self.openConnectDialog)
+        self.ui.action_properties.triggered.connect(self.openPropertiesDialog)
         self.ui.add_button.clicked.connect(self.addClicked)
         self.ui.delete_button.clicked.connect(self.deleteClicked)
         self.ui.get_button.clicked.connect(self.getClicked)
@@ -25,6 +28,14 @@ class Mci(qt.QMainWindow):
         self.connect_dialog.activateWindow()
 
         #self.connect_dialog.mc, core.SIGNAL("hasNewStats()"), self, core.SLOT("displayStats()"))
+
+    def openPropertiesDialog(self):
+        if self.properties_dialog == None:
+            self.properties_dialog = ProxyConfig(self)
+
+        self.properties_dialog.show()
+        self.properties_dialog.raise_()
+        self.properties_dialog.activateWindow()
 
     def memcache_connect(self):
         self.mc = Memcache(self.connect_dialog.servers)

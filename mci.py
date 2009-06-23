@@ -3,6 +3,7 @@ from ui_mci import Ui_McIClass
 from connect_dialog import ConnectDialog
 from proxy_config import ProxyConfig
 from memcache import Memcache
+from Config import config
 
 class Mci(qt.QMainWindow):
     def __init__(self, parent):
@@ -27,8 +28,6 @@ class Mci(qt.QMainWindow):
         self.connect_dialog.raise_()
         self.connect_dialog.activateWindow()
 
-        #self.connect_dialog.mc, core.SIGNAL("hasNewStats()"), self, core.SLOT("displayStats()"))
-
     def openPropertiesDialog(self):
         if self.properties_dialog == None:
             self.properties_dialog = ProxyConfig(self)
@@ -36,6 +35,9 @@ class Mci(qt.QMainWindow):
         self.properties_dialog.show()
         self.properties_dialog.raise_()
         self.properties_dialog.activateWindow()
+
+    def configure_proxy_settings(self):
+        config.configure_proxy_settings(self.properties_dialog)
 
     def memcache_connect(self):
         self.mc = Memcache(self.connect_dialog.servers)

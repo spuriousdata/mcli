@@ -26,6 +26,16 @@ class Configuration(SafeConfigParser):
 
         self.configure(self.cfile)
 
+    def configure_proxy_settings(self, properties_dialog):
+        self.set('socks', 'protocol', str(properties_dialog.ui.socks_proto.value()))
+        self.set('socks', 'hostname', str(properties_dialog.ui.socks_hostname.text()))
+        self.set('socks', 'port', str(properties_dialog.ui.socks_port.text()))
+        self.set('socks', 'dns', str(properties_dialog.ui.socks_dns.isChecked()))
+        if properties_dialog.ui.socks_proto.value() == 5 and str(properties_dialog.ui.socks_username.text()) is not "":
+            self.set('socks', 'username', str(properties_dialog.ui.socks_username.text()))
+            self.set('socks', 'password', str(properties_dialog.ui.socks_password.text()))
+        self.write(sys.stdout)
+
     def addserver(self, server):
         s = self.get('memcache', 'servers')
         if s is not None:

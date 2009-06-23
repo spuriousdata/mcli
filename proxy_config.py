@@ -9,6 +9,9 @@ class ProxyConfig(qt.QDialog):
         self.ui.setupUi(self)
 
         self.ui.socks_proto.valueChanged[int].connect(self.toggle_unpw)
+        self.ui.buttonBox.button(qt.QDialogButtonBox.Ok).clicked.connect(
+            parent.configure_proxy_settings
+        )
         self.ui.socks_port.setValidator(
             qt.QRegExpValidator(core.QRegExp("[1-9][0-9]{0,4}"), self)
         )

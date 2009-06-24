@@ -2,7 +2,7 @@ import socket
 from Config import config
 from struct import Struct
 
-class socks(socket.socket):
+class Socks(socket.socket):
     BUFSIZ = 4096
     init_auth_pkt = Struct("BBBB")
     init_noauth_pkt = Struct("BBB")
@@ -29,22 +29,19 @@ class socks(socket.socket):
 
         if config.get('general', 'verbose') == True:
             print "Connecting to SOCKS%d proxy" % socks_proto
-        super(socks,self).connect((socks_host, int(socks_port)))
+        super(Socks,self).connect((socks_host, int(socks_port)))
 
-        size = 0
         data = None
         if socks_user is not None:
             # proto = 5, number_of_methods, method 0 -- no_auth, method 2 -- un/pw auth
-            size = 4
-            data = socks.init_auth_pkt.pack(5, 2 , 0, 2)
+            data = Socks.init_auth_pkt.pack(5, 2 , 0, 2)
         else:
             # proto = 5, number_of_methods, method 0 -- no_auth
-            size = 3
-            data = socks.init_noauth_pkg.pack(5, 1, 0)
+            data = Socks.init_noauth_pkg.pack(5, 1, 0)
 
         self.safe_sendall(data)
 
-        resp = socks.resp_pkt.unpack(self.recv(socks.BUFSIZ))
+        resp = Socks.resp_pkt.unpack(self.recv(Socks.BUFSIZ))
 
         if resp[0] != 5:
             self.close()
@@ -56,14 +53,14 @@ class socks(socket.socket):
 
         if resp[1] == 2:
             # un/pw auth
-            data = socks.unpw_auth_pkt.pack (
+            data = Socks.unpw_auth_pkt.pack (
                     1, len(socks_user), socks_user, 
                     len(socks_pass), socks_pass
             )
 
             self.safe_sendall(data)
 
-            resp = socks.resp_pkt.unpack(self.recv(socks.BUFSIZ))
+            resp = Socks.resp_pkt.unpack(self.recv(Socks.BUFSIZ))
 
             if resp[0] != 1:
                 self.close()
@@ -75,13 +72,13 @@ class socks(socket.socket):
 
             # We've made it, we're good. We can now connect to the remote server
             if socks_use_dns:
-                data = socks.connect_pkt.pack(5, 1, 0, 3, len(host), host, socket.htons(port))
+                data = Socks.connect_pkt.pack(5, 1, 0, 3, len(host), host, socket.htons(port))
             else:
                 packed_ip = socket.inet_aton(socket.gethostbyname(host))
-                data = socks.connect_pkt.pack(5, 1, 0, 1, packed_ip, socket.htons(port))
+                data = Socks.connect_pkt.pack(5, 1, 0, 1, packed_ip, socket.htons(port))
 
             self.safe_sendall(data)
-            resp = socks.resp_pkt.unpack(self.recv(socks.BUFSIZ))
+            resp = Socks.resp_pkt.unpack(self.recv(Socks.BUFSIZ))
 
             if resp[0] != 5:
                 raise IOError("Protocol error")

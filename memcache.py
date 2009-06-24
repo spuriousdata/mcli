@@ -1,7 +1,7 @@
 import socketfactory
 import socket
 
-class Memcache:
+class Memcache(object):
     def __init__(self, servers = []):
         self.sockets = []
         self.servers = servers

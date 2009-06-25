@@ -1,6 +1,7 @@
 from PyQt4 import QtGui as qt, QtCore as core
 from ui_connect_dialog import Ui_ConnectDialog
 from hostentry import HostEntry
+from Config import config
 
 class ConnectDialog(qt.QDialog):
     def __init__(self, parent):
@@ -13,6 +14,10 @@ class ConnectDialog(qt.QDialog):
         self.ui.buttonBox.button(qt.QDialogButtonBox.Ok).clicked.connect(parent.memcache_connect)
         self.ui.scrolling_contents.setLayout(qt.QVBoxLayout())
         self.ui.scrolling_contents.layout().setContentsMargins(0, 0, 0, 0)
+        for server in config.get('memcache', 'servers').split(','):
+            host,port = server.strip().split(':')
+            self.addHostEntry((host, port))
+            
 
     def addServerClicked(self):
         self.addHostEntry()
@@ -28,7 +33,7 @@ class ConnectDialog(qt.QDialog):
             last = i.port
         qt.QWidget.setTabOrder(last, self.ui.buttonBox)
 
-    def addHostEntry(self):
+    def addHostEntry(self, _set=()):
         host = HostEntry()
         host_widget = qt.QWidget()
 
@@ -45,6 +50,9 @@ class ConnectDialog(qt.QDialog):
 
         host.host = qt.QLineEdit(host_widget)
         host.host.setObjectName("host_edit %d" % (len(self.servers)))
+        
+        if len(_set) == 2:
+            host.host.setText(_set[0])
 
         server_info_horiz_layout.addWidget(host.host)
 
@@ -70,6 +78,8 @@ class ConnectDialog(qt.QDialog):
         host.port.setMaxLength(5)
 
         host.port.setValidator(qt.QRegExpValidator(host.port_regex, self))
+        if len(_set) == 2:
+            host.port.setText(str(_set[1]))
 
         server_info_horiz_layout.addWidget(host.port)
         host.host.setFocus()

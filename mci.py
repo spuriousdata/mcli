@@ -4,10 +4,11 @@ from connect_dialog import ConnectDialog
 from proxy_config import ProxyConfig
 from memcache import Memcache
 from Config import config
+from treemodel import TreeModel
 
 class Mci(qt.QMainWindow):
     def __init__(self, parent):
-        qt.QMainWindow.__init__(self)
+        super(Mci, self).__init__()
         self.connect_dialog = None
         self.properties_dialog = None
         self.ui = Ui_McIClass()
@@ -19,6 +20,11 @@ class Mci(qt.QMainWindow):
         self.ui.delete_button.clicked.connect(self.deleteClicked)
         self.ui.get_button.clicked.connect(self.getClicked)
         self.ui.flushall_button.clicked.connect(self.flushallClicked)
+        self.ui.connect_button.clicked.connect(self.connectClicked)
+        
+    def connectClicked(self):
+        self.openConnectDialog()
+        #self.memcache_connect()
 
     def openConnectDialog(self):
         if self.connect_dialog == None:
@@ -42,9 +48,11 @@ class Mci(qt.QMainWindow):
     def memcache_connect(self):
         self.mc = Memcache(self.connect_dialog.servers)
         self.mc.connect()
+        self.displayStats()
 
     def displayStats(self):
-        pass
+        statsmodel = TreeModel(self.mc.get_stats())
+        self.ui.ltree.setModel(statsmodel)
 
     def addClicked(self):
         print "addClicked() called"

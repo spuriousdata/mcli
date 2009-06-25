@@ -19,6 +19,6 @@ mci.ini : mci.ini-sample
 	python -m py_compile $<
 
 clean:
-	rm -f ui_*.py *.pyc
+	rm -f ui_*.py *.pyc mci.ini
 
 .SECONDARY: $(INT)

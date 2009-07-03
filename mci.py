@@ -13,6 +13,7 @@ class Mci(qt.QMainWindow):
         self.properties_dialog = None
         self.ui = Ui_McIClass()
         self.ui.setupUi(self)
+        self.isAbort = False
 
         self.ui.action_quick_connect.triggered.connect(self.openConnectDialog)
         self.ui.action_properties.triggered.connect(self.openPropertiesDialog)
@@ -47,8 +48,17 @@ class Mci(qt.QMainWindow):
 
     def memcache_connect(self):
         self.mc = Memcache(self.connect_dialog.servers)
+        self.mc.failedToConnect.connect(self.abort)
+        self.mc.connectSuccessful.connect(self.noAbort)
         self.mc.connect()
-        self.displayStats()
+        if not self.isAbort:
+            self.displayStats()
+        
+    def noAbort(self):
+        self.isAbort = False
+        
+    def abort(self):
+        self.isAbort = True
 
     def displayStats(self):
         statsmodel = TreeModel(self.mc.get_stats())

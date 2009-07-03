@@ -15,7 +15,7 @@ class Socks(socket.socket):
         socket.socket.__init__(self, int(family), type, proto)
 
     def connect(self, *args):
-        host,port = args
+        host, port = args
 
         socks_host = config.get('socks', 'hostname')
         socks_port = config.get('socks', 'port')
@@ -29,7 +29,7 @@ class Socks(socket.socket):
 
         if config.get('general', 'verbose') == True:
             print "Connecting to SOCKS%d proxy" % socks_proto
-        super(Socks,self).connect((socks_host, int(socks_port)))
+        super(Socks, self).connect((socks_host, int(socks_port)))
 
         data = None
         if socks_user is not None:
@@ -54,7 +54,7 @@ class Socks(socket.socket):
         if resp[1] == 2:
             # un/pw auth
             data = Socks.unpw_auth_pkt.pack (
-                    1, len(socks_user), socks_user, 
+                    1, len(socks_user), socks_user,
                     len(socks_pass), socks_pass
             )
 

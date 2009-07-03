@@ -15,7 +15,7 @@ class ConnectDialog(qt.QDialog):
         self.ui.scrolling_contents.setLayout(qt.QVBoxLayout())
         self.ui.scrolling_contents.layout().setContentsMargins(0, 0, 0, 0)
         for server in config.get('memcache', 'servers').split(','):
-            host,port = server.strip().split(':')
+            host, port = server.strip().split(':')
             self.addHostEntry((host, port))
             
 
@@ -44,7 +44,7 @@ class ConnectDialog(qt.QDialog):
         server_info_horiz_layout.setContentsMargins(0, 0, 0, 0)
         host_label = qt.QLabel(host_widget)
         host_label.setObjectName("host_label %d" % (len(self.servers)))
-        host_label.setText("Host %d: " % (len(self.servers)+1))
+        host_label.setText("Host %d: " % (len(self.servers) + 1))
 
         server_info_horiz_layout.addWidget(host_label)
 
@@ -62,7 +62,7 @@ class ConnectDialog(qt.QDialog):
 
         port_label = qt.QLabel(host_widget)
         port_label.setObjectName("port_label %d" % (len(self.servers)))
-        port_label.setText("Port %d: " % (len(self.servers)+1))
+        port_label.setText("Port %d: " % (len(self.servers) + 1))
 
         server_info_horiz_layout.addWidget(port_label)
 

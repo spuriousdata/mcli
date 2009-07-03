@@ -4,17 +4,17 @@ import sys
 
 
 class Configuration(SafeConfigParser):
-    def __init__(self, defaults = {}):
+    def __init__(self, defaults={}):
         SafeConfigParser.__init__(self, defaults)
         self.verbose = False
-        self.cfile = './mci.ini'
+        self.cfile = '/Users/momalley/Dev/mci/branches/pymci/mci.ini'
         try:
             opts, args = getopt(sys.argv[1:], "vhc:s:", ["help"])
         except GetoptError:
             self.usage()
             sys.exit(-1)
 
-        for o,a in opts:
+        for o, a in opts:
             if o == '-v':
                 self.verbose = True
                 self.set('general', 'verbose', 'True')

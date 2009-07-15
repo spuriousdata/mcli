@@ -34,7 +34,7 @@
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
    <value key="QtVersionId" type="int" >0</value>
    <value key="addQDumper" type="" ></value>
-   <value key="buildDirectory" type="QString" >/Users/momalley/Dev/qt/mci</value>
+   <value key="buildDirectory" type="QString" >/Users/momalley/Dev/mci/trunk</value>
   </valuemap>
  </data>
  <data>

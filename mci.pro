@@ -16,4 +16,5 @@ HEADERS += mci.h \
     singlesocket.h \
     memcacheclient.h
 FORMS += mci.ui \
-    connect_dialog.ui
+    connect_dialog.ui \
+	config.ui

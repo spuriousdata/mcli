@@ -14,7 +14,7 @@ class MemcacheClient : public QObject
 public:
     MemcacheClient() {}
     void mc_connect(QVector<HostEntry *>* hosts);
-    QStringList *stats;
+    QStringList stats;
 
 signals:
     void hasNewStats();

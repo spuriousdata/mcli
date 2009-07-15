@@ -3,6 +3,7 @@
 
 #include <QtGui/QMainWindow>
 #include "connect_dialog.h"
+#include "ConfigDialog.h"
 
 namespace Ui
 {
@@ -19,6 +20,7 @@ public:
 
 public slots:
     void openConnectDialog();
+    void openConfigDialog();
     void addClicked();
     void deleteClicked();
     void getClicked();
@@ -28,6 +30,7 @@ public slots:
 private:
     Ui::McIClass *ui;
     ConnectDialog *connect_dialog;
+    ConfigDialog *config_dialog;
 };
 
 #endif // MCI_H

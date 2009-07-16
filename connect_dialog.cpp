@@ -9,14 +9,16 @@
 
 ConnectDialog::ConnectDialog(QWidget *parent) :
     QDialog(parent),
-    m_ui(new Ui::ConnectDialog)
+    m_ui(new Ui::ConnectDialog),
+    mc(new MemcacheClient())
 {
     m_ui->setupUi(this);
     connect(m_ui->addserver_button, SIGNAL(clicked()), this, SLOT(addServerClicked()));
     connect(m_ui->buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(memcache_connect()));
     m_ui->scrolling_contents->setLayout(new QVBoxLayout);
     m_ui->scrolling_contents->layout()->setContentsMargins(0, 0, 0, 0);
-    mc = new MemcacheClient();
+
+    connect(mc, SIGNAL(hasNewStats()), parent, SLOT(displayStats()));
 }
 
 void ConnectDialog::addServerClicked()

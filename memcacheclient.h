@@ -25,6 +25,7 @@ private slots:
 
 private:
     QVector<SingleSocket *> connections;
+    QVector<HostEntry *> *hosts;
     void getStats();
 };
 

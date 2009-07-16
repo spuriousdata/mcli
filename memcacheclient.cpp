@@ -14,6 +14,8 @@ void MemcacheClient::mc_connect(QVector<HostEntry *> *hosts)
     SingleSocket *s;
     int id;
 
+    this->hosts = hosts;
+    
     foreach (h, *hosts) {
         id = connections.size();
         s = new SingleSocket(id, this);
@@ -45,7 +47,7 @@ void MemcacheClient::readData(int sockid)
     QString data_block;
     char *s;
     int len;
-
+    qDebug("Called readData(%d)", sockid);
     forever {
         len = c->bytesAvailable();
 
@@ -55,12 +57,12 @@ void MemcacheClient::readData(int sockid)
 
         s = new char(len+1);
         in.readRawData(s, len);
-        qDebug(QString("From socket %1: %2").arg(sockid).arg(s).toAscii());
         data_block.append(s);
         delete s;
     }
 
-    stats = data_block.split("\r\n");
+    // First entry is the hostname for now
+    stats << QString(hosts->at(sockid)->host->text().append(":").append(hosts->at(sockid)->port->text()))  << data_block.split("\r\n");
     emit hasNewStats();
 
 }
@@ -84,7 +86,7 @@ void MemcacheClient::socketError(QAbstractSocket::SocketError err)
             QMessageBox::information(NULL,
                                      tr("Memcache Inspector"),
                                      tr("The connection was refused by the peer. "
-                                        "Make sure the fortune server is running, "
+                                        "Make sure the memcache server is running, "
                                         "and check that the host name and port "
                                         "settings are correct."));
             break;

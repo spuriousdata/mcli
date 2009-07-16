@@ -4,8 +4,7 @@
 #include <QtGui/QDialog>
 #include <QVector>
 #include "hostentry.h"
-
-class MemcacheClient;
+#include "memcacheclient.h"
 
 namespace Ui {
     class ConnectDialog;

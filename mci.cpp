@@ -5,16 +5,19 @@
 
 #include <QtGui>
 
+class MemcacheClient;
+
 McI::McI(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::McIClass)
 {
     ui->setupUi(this);
     connect(ui->action_quick_connect, SIGNAL(triggered()), this, SLOT(openConnectDialog()));
+    connect(ui->action_properties, SIGNAL(triggered()), this, SLOT(openConfigDialog()));
     connect(ui->add_button, SIGNAL(clicked()), this, SLOT(addClicked()));
     connect(ui->delete_button, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->get_button, SIGNAL(clicked()), this, SLOT(getClicked()));
     connect(ui->flushall_button, SIGNAL(clicked()), this, SLOT(flushallClicked()));
-    connect(ui->connect_button, SIGNAL(clicked()), this, SLOT(openConfigDialog()));
+    connect(ui->connect_button, SIGNAL(clicked()), this, SLOT(openConnectDialog()));
 }
 
 void McI::openConfigDialog()
@@ -35,13 +38,47 @@ void McI::openConnectDialog()
     connect_dialog->show();
     connect_dialog->raise();
     connect_dialog->activateWindow();
-
-//    connect((MemcacheClient*)connect_dialog->mc, SIGNAL(hasNewStats()), this, SLOT(displayStats()));
 }
 
 void McI::displayStats()
 {
+    QTreeWidget *tree;
+    QTreeWidgetItem *parent, *host, *pair;
+    QStringList data;
+    QString line;
+    bool hasHost = false;
 
+    tree = ui->maintree;
+
+    tree->setHeaderLabels(QStringList() << tr("Host") << tr("Key") << tr("value"));
+    tree->header()->setResizeMode(0, QHeaderView::Stretch);
+    tree->header()->setResizeMode(1, QHeaderView::Stretch);
+    tree->header()->setResizeMode(2, QHeaderView::Stretch);
+
+    tree->clear();
+    parent = tree->invisibleRootItem();
+
+    data = connect_dialog->mc->stats;
+
+    foreach (line, data) {
+        if (!hasHost) {
+            host = new QTreeWidgetItem(parent);
+            hasHost = true;
+            host->setText(0, line);
+        } else {
+            pair = new QTreeWidgetItem(host);
+            QStringList parts = line.split(' ');
+            if (parts.size() == 3) {
+                pair->setText(0, parts.at(1));
+                pair->setText(1, parts.at(2));
+            } else {
+                pair->setText(0, line);
+            }
+        }
+    }
+    
+    tree->sortByColumn(0);
+    tree->setFocus();
 }
 
 void McI::addClicked()

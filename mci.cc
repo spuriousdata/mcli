@@ -60,6 +60,26 @@ void McI::displayStats()
 
     data = connect_dialog->mc->stats;
 
+    host = new QTreeWidgetItem(parent);
+    host->setText(0, "Test Host 1");
+    pair = new QTreeWidgetItem(host);
+    pair->setText(0, "mem");
+    pair->setText(1, "12345");
+
+    pair = new QTreeWidgetItem(host);
+    pair->setText(0, "foo");
+    pair->setText(1, "asdfasdf");
+
+    pair = new QTreeWidgetItem(host);
+    pair->setText(0, "bar");
+    pair->setText(1, "1qwereqw2345");
+
+    pair = new QTreeWidgetItem(host);
+    pair->setText(0, "baz");
+    pair->setText(1, "rturtu");
+
+    /*
+
     foreach (line, data) {
         if (!hasHost) {
             host = new QTreeWidgetItem(parent);
@@ -76,7 +96,7 @@ void McI::displayStats()
             }
         }
     }
-    
+*/
     tree->sortByColumn(0);
     tree->setFocus();
 }

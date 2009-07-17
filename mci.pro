@@ -4,17 +4,23 @@
 QT += network
 TARGET = mci
 TEMPLATE = app
-SOURCES += main.cpp \
-    mci.cpp \
-    connect_dialog.cpp \
-    hostentry.cpp \
-    singlesocket.cpp \
-    memcacheclient.cpp
+SOURCES += main.cc \
+    mci.cc \
+    connect_dialog.cc \
+    hostentry.cc \
+    singlesocket.cc \
+    memcacheclient.cc \
+    ConfigDialog.cc \
+    TreeNode.cc \
+    StatsModel.cc
 HEADERS += mci.h \
     connect_dialog.h \
     hostentry.h \
     singlesocket.h \
-    memcacheclient.h
+    memcacheclient.h \
+    ConfigDialog.h \
+    TreeNode.h \
+    StatsModel.h
 FORMS += mci.ui \
     connect_dialog.ui \
-	config.ui
+    config.ui

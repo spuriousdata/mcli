@@ -1,9 +1,9 @@
 #include "TreeNode.h"
 #include <QString>
 
-TreeNode::TreeNode(const QString &s, TreeNode *parent)
+TreeNode::TreeNode(const QStringList &l, TreeNode *parent)
 {
-	data = s;
+	data = l;
 	this->parent = parent;
 }
 

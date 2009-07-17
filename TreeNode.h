@@ -2,15 +2,16 @@
 #define TREENODE_H
 
 #include <QList>
-#include <QString>
+#include <QStringList>
 
 class TreeNode
 {
 public:
-	TreeNode(const QString &s = "", TreeNode *parent = 0);
+	TreeNode(TreeNode *_parent = 0) : parent(_parent) {}
+	TreeNode(const QStringList &l, TreeNode *parent = 0);
 	~TreeNode();
 
-	QString data;
+	QStringList data;
 	TreeNode *parent;
 	QList<TreeNode *>children;
 };

@@ -5,28 +5,29 @@
 #include <QObject>
 #include <QVector>
 #include <QAbstractSocket>
+
 class SingleSocket;
-class QStringList;
+class StatData;
 
 class MemcacheClient : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    MemcacheClient() {}
-    void mc_connect(QVector<HostEntry *>* hosts);
-    QStringList stats;
+	MemcacheClient() {}
+	void mc_connect(QVector<HostEntry *>* hosts);
+	QVector<SingleSocket *> connections;
+	StatData **stats;
 
 signals:
-    void hasNewStats();
+	void hasNewStats();
 
 private slots:
-    void readData(int sockid);
-    void socketError(QAbstractSocket::SocketError err);
+	void readData(int sockid);
+	void socketError(QAbstractSocket::SocketError err);
 
 private:
-    QVector<SingleSocket *> connections;
-    QVector<HostEntry *> *hosts;
-    void getStats();
+	QVector<HostEntry *> *hosts;
+	void getStats();
 };
 
 #endif // MEMCACHECLIENT_H

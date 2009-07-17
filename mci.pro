@@ -12,7 +12,9 @@ SOURCES += main.cc \
     memcacheclient.cc \
     ConfigDialog.cc \
     TreeNode.cc \
-    StatsModel.cc
+    StatsModel.cc \
+    TreeModel.cc \
+    StatData.cc
 HEADERS += mci.h \
     connect_dialog.h \
     hostentry.h \
@@ -20,7 +22,9 @@ HEADERS += mci.h \
     memcacheclient.h \
     ConfigDialog.h \
     TreeNode.h \
-    StatsModel.h
+    StatsModel.h \
+    TreeModel.h \
+    StatData.h
 FORMS += mci.ui \
     connect_dialog.ui \
     config.ui

@@ -11,7 +11,9 @@
 class MemcacheClient;
 
 McI::McI(QWidget *parent)
-	: QMainWindow(parent), ui(new Ui::McIClass)
+	: QMainWindow(parent), ui(new Ui::McIClass),
+	connect_dialog(NULL), config_dialog(NULL),
+	kv_prompt(NULL)
 {
 	ui->setupUi(this);
 	connect(ui->action_quick_connect, SIGNAL(triggered()), this, SLOT(openConnectDialog()));
@@ -21,6 +23,14 @@ McI::McI(QWidget *parent)
 	connect(ui->get_button, SIGNAL(clicked()), this, SLOT(getClicked()));
 	connect(ui->flushall_button, SIGNAL(clicked()), this, SLOT(flushallClicked()));
 	connect(ui->connect_button, SIGNAL(clicked()), this, SLOT(openConnectDialog()));
+	connect(ui->maintree, SIGNAL(collapsed(QModelIndex)), this, SLOT(resizeTreeColumns(QModelIndex)));
+	connect(ui->maintree, SIGNAL(expanded(QModelIndex)), this, SLOT(resizeTreeColumns(QModelIndex)));
+}
+
+void McI::resizeTreeColumns(const QModelIndex& index)
+{
+	for (int i = 0; i < index.model()->columnCount(QModelIndex()); i++)
+		ui->maintree->resizeColumnToContents(i);
 }
 
 void McI::openConfigDialog()
@@ -43,7 +53,7 @@ void McI::openConnectDialog()
 	connect_dialog->activateWindow();
 }
 
-void McI::openKeyValuePrompt(QString &title)
+void McI::openKeyValuePrompt()
 {
 	if (!kv_prompt) {
 		kv_prompt = new KeyValuePrompt(this);
@@ -85,7 +95,11 @@ void McI::displayStats()
 
 	model = new StatsModel();
 	model->setRootNode(rootNode);
-	ui->maintree->setModel(model);
+	QSortFilterProxyModel *sortModel = new QSortFilterProxyModel(this);
+	sortModel->setSourceModel(model);
+	ui->maintree->setModel(sortModel);
+	for (int i = 0; i < model->columnCount(QModelIndex()); i++)
+		ui->maintree->resizeColumnToContents(i);
 }
 
 void McI::addClicked()

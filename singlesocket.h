@@ -6,18 +6,13 @@
 
 class SingleSocket : public QTcpSocket
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    SingleSocket(int id, QObject *parent = 0);
-
-signals:
-    void _readyRead(int);
-
-private slots:
-    void emitReadyRead();
+	SingleSocket(int id, QObject *parent = 0);
+	int id() const;
 
 private:
-    int socketid;
+	int socketid;
 };
 
 #endif // SINGLESOCKET_H

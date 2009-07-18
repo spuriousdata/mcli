@@ -13,7 +13,7 @@ class MemcacheClient : public QObject
 {
 	Q_OBJECT
 public:
-	MemcacheClient() {}
+	MemcacheClient(QObject *parent = 0);
 	void mc_connect(QVector<HostEntry *>* hosts);
 	QVector<SingleSocket *> connections;
 	QVector<StatData*> stats;
@@ -22,7 +22,7 @@ signals:
 	void hasNewStats();
 
 private slots:
-	void readData(int sockid);
+	void readData();
 	void socketError(QAbstractSocket::SocketError err);
 
 private:

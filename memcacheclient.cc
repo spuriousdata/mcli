@@ -9,6 +9,19 @@
 #include <QIODevice>
 #include <QMessageBox>
 
+MemcacheClient::MemcacheClient(QObject *parent) : QObject(parent)
+{
+	/*
+	QNetworkProxy proxy;
+	proxy.setType(QNetworkProxy::Socks5Proxy);
+	proxy.setHostName("proxy.example.com");
+	proxy.setPort(1080);
+	proxy.setUser("username");
+	proxy.setPassword("password");
+	QNetworkProxy::setApplicationProxy(proxy);
+ */
+}
+
 void MemcacheClient::mc_connect(QVector<HostEntry *> *hosts)
 {
 	HostEntry *h;
@@ -20,7 +33,7 @@ void MemcacheClient::mc_connect(QVector<HostEntry *> *hosts)
 	foreach (h, *hosts) {
 		id = connections.size();
 		s = new SingleSocket(id, this);
-		connect(s, SIGNAL(_readyRead(int)), this, SLOT(readData(int)));
+		connect(s, SIGNAL(readyRead()), this, SLOT(readData()));
 		connect(s, SIGNAL(error(QAbstractSocket::SocketError)),
 				this, SLOT(socketError(QAbstractSocket::SocketError)));
 		s->connectToHost(h->host->text(), h->port->text().toInt());
@@ -28,7 +41,7 @@ void MemcacheClient::mc_connect(QVector<HostEntry *> *hosts)
 	}
 	qDebug("Connected");
 
-	stats.resize(connections.size()+1);
+	stats.resize(connections.size());
 
 	/* XXX */
 	getStats();
@@ -43,14 +56,18 @@ void MemcacheClient::getStats()
 	}
 }
 
-void MemcacheClient::readData(int sockid)
+void MemcacheClient::readData()
 {
-	SingleSocket *c;
-	c = connections.at(sockid);
-	QDataStream in(c);
 	QString data_block;
 	char *s;
-	int len;
+	int len, sockid;
+	SingleSocket *c;
+
+	sockid = dynamic_cast<SingleSocket *>(sender())->id();
+	c = connections.at(sockid);
+	QDataStream in(c);
+
+
 	qDebug("Called readData(%d)", sockid);
 	forever {
 		len = c->bytesAvailable();
@@ -59,10 +76,12 @@ void MemcacheClient::readData(int sockid)
 			break;
 		}
 
-		s = new char(len+1);
+		s = new char[len+1]();
+		for (int i = 0; i < len+1; i++) s[i] = 0;
+
 		in.readRawData(s, len);
 		data_block.append(s);
-		delete s;
+		delete[] s;
 	}
 
 	// clear out old stats

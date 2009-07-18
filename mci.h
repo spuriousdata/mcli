@@ -2,6 +2,7 @@
 #define MCI_H
 
 #include <QtGui/QMainWindow>
+#include <QModelIndex>
 #include "connect_dialog.h"
 #include "ConfigDialog.h"
 #include "KeyValuePrompt.h"
@@ -29,6 +30,7 @@ public slots:
 	void getClicked();
 	void flushallClicked();
 	void displayStats();
+	void resizeTreeColumns(const QModelIndex& index);
 
 private:
 	Ui::McIClass *ui;

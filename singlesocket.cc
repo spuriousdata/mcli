@@ -4,11 +4,10 @@
 
 SingleSocket::SingleSocket(int id, QObject *parent) : QTcpSocket(parent)
 {
-    socketid = id;
-    connect(this, SIGNAL(readyRead()), this, SLOT(emitReadyRead()));
+	socketid = id;
 }
 
-void SingleSocket::emitReadyRead()
+int SingleSocket::id() const
 {
-    emit _readyRead(socketid);
+	return socketid;
 }

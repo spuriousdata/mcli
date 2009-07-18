@@ -35,8 +35,11 @@
          <property name="uniformRowHeights">
           <bool>true</bool>
          </property>
-         <property name="animated">
+         <property name="sortingEnabled">
           <bool>true</bool>
+         </property>
+         <property name="animated">
+          <bool>false</bool>
          </property>
          <property name="headerHidden">
           <bool>false</bool>

@@ -28,7 +28,7 @@ void MemcacheClient::mc_connect(QVector<HostEntry *> *hosts)
 	}
 	qDebug("Connected");
 
-	stats = new StatData *[connections.size()+1]();
+	stats.resize(connections.size()+1);
 
 	/* XXX */
 	getStats();

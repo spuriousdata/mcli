@@ -16,7 +16,7 @@ public:
 	MemcacheClient() {}
 	void mc_connect(QVector<HostEntry *>* hosts);
 	QVector<SingleSocket *> connections;
-	StatData **stats;
+	QVector<StatData*> stats;
 
 signals:
 	void hasNewStats();

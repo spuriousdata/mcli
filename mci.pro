@@ -14,7 +14,8 @@ SOURCES += main.cc \
     TreeNode.cc \
     StatsModel.cc \
     TreeModel.cc \
-    StatData.cc
+    StatData.cc \
+    KeyValuePrompt.cc
 HEADERS += mci.h \
     connect_dialog.h \
     hostentry.h \
@@ -24,7 +25,9 @@ HEADERS += mci.h \
     TreeNode.h \
     StatsModel.h \
     TreeModel.h \
-    StatData.h
+    StatData.h \
+    KeyValuePrompt.h
 FORMS += mci.ui \
     connect_dialog.ui \
-    config.ui
+    config.ui \
+    KeyValuePrompt.ui

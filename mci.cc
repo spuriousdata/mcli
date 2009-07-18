@@ -43,21 +43,30 @@ void McI::openConnectDialog()
 	connect_dialog->activateWindow();
 }
 
+void McI::openKeyValuePrompt(QString &title)
+{
+	if (!kv_prompt) {
+		kv_prompt = new KeyValuePrompt(this);
+	}
+	kv_prompt->show();
+	kv_prompt->raise();
+	kv_prompt->activateWindow();
+}
+
 void McI::displayStats()
 {
-	StatData **data;
+	QVector<StatData *> data;
 	QString line;
 	QStringList parts, lineItem;
 	StatData *sd;
 	TreeNode *rootNode, *serverNode, *statNode;
 	TreeModel *model;
-	int i;
 
 	data = connect_dialog->mc->stats;
 	rootNode = new TreeNode();
 
-	for (i = 0; i < connect_dialog->mc->connections.size(); i++) {
-		sd = data[i];
+	foreach (sd, data) {
+		if (sd == NULL) continue;
 		lineItem.clear();
 		lineItem << sd->server << "" << "";
 		serverNode = new TreeNode(lineItem, rootNode);
@@ -65,6 +74,7 @@ void McI::displayStats()
 		foreach (line, sd->stats) {
 			if (!line.startsWith("END")) {
 				parts = line.split(" ");
+				if (parts.size() < 3) continue;
 				lineItem.clear();
 				lineItem << "" << parts.at(1) << parts.at(2);
 				statNode = new TreeNode(lineItem, serverNode);
@@ -80,7 +90,22 @@ void McI::displayStats()
 
 void McI::addClicked()
 {
-	qDebug("addClicked() called");
+	if (kv_prompt) {
+		kv_prompt->setWindowTitle("Add Item Dialog");
+		kv_prompt->setKey("");
+		kv_prompt->setValue("");
+		connect(kv_prompt->buttonBox()->button(QDialogButtonBox::Ok),
+				SIGNAL(clicked()),
+				this,
+				SLOT(do_add())
+		);
+	}
+	openKeyValuePrompt();
+}
+
+void McI::do_add()
+{
+	qDebug(QString("Adding %1 : %2").arg(kv_prompt->key()).arg(kv_prompt->value()).toAscii());
 }
 
 void McI::getClicked()
@@ -100,5 +125,6 @@ void McI::flushallClicked()
 McI::~McI()
 {
 	delete ui;
+	delete config_dialog;
 	delete connect_dialog;
 }

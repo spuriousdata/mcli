@@ -16,7 +16,7 @@ class MemcacheClient : public QObject
 public:
 	MemcacheClient();
 	void mc_connect(QVector<HostEntry *> &hosts);
-	void addItem(QString& key, QString& data);
+	void addItem(QString key, QString data);
 	QVector<SingleSocket *> connections;
 	QVector<StatData *> stats;
 
@@ -30,13 +30,14 @@ private slots:
 private:
 	QVector<HostEntry *> *hosts;
 	void getStats();
-	enum CommandState {
-		NONE,
-		STATS,
-		GET,
-		SET,
-		DELETE,
-		FLUSH
+	enum {
+		NONE_CMD,
+		STORE_CMD,
+		RET_CMD,
+		DEL_CMD,
+		INCDEC_CMD,
+		STATS_CMD,
+		VERSION_CMD
 	} lastCommand;
 };
 

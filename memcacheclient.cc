@@ -2,6 +2,7 @@
 #include "hostentry.h"
 #include "singlesocket.h"
 #include "StatData.h"
+#include "macros.h"
 #include <QVector>
 #include <QAbstractSocket>
 #include <QDataStream>
@@ -9,7 +10,7 @@
 #include <QIODevice>
 #include <QMessageBox>
 
-MemcacheClient::MemcacheClient() : QObject(), lastCommand(NONE)
+MemcacheClient::MemcacheClient() : QObject(), lastCommand(NONE_CMD)
 {
 	/*
 	QNetworkProxy proxy;
@@ -51,7 +52,7 @@ void MemcacheClient::getStats()
 {
 	QTcpSocket *c;
 
-	lastCommand = STATS;
+	lastCommand = STATS_CMD;
 
 	foreach (c, connections) {
 		c->write("stats\r\n");
@@ -65,12 +66,12 @@ void MemcacheClient::getStats()
  *  It would also be pretty slick we offered the ability to serialize the
  *  sent string in as in PHP, Python, Java, etc.
  */
-void MemcacheClient::addItem(QString& key, QString& data)
+void MemcacheClient::addItem(QString UNUSED(key), QString UNUSED(data))
 {
 	return;
 	QTcpSocket *c;
 
-	lastCommand = ADD;
+	lastCommand = STORE_CMD;
 
 	foreach (c, connections) {
 		c->write("");
@@ -105,7 +106,7 @@ void MemcacheClient::readData()
 		delete[] s;
 	}
 
-	if (lastCommand == STATS) {
+	if (lastCommand == STATS_CMD) {
 		// clear out old stats
 		if (stats[sockid]) delete stats[sockid];
 

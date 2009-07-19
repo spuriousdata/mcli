@@ -14,16 +14,19 @@ public:
 	AppController();
 	~AppController();
 	void run();
+	inline const QString settingsOrg() const {return "com.spuriousdata"; }
+	inline const QString settingsName() const {return "mci";}
 
 public slots:
 	void mcConnect();
 	void addItem();
-	void getItem();
+/*	void getItem();
 	void deleteItem();
-
+*/
 private:
 	UIController *ui_controller;
 	MemcacheClient *memcache;
+
 };
 
 #endif // APPCONTROLLER_H

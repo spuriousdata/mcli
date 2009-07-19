@@ -5,6 +5,7 @@
 #include <QRegExp>
 #include <QHBoxLayout>
 #include <QLineEdit>
+#include <QStringList>
 
 ConnectDialog::ConnectDialog(QWidget *parent) :
 	QDialog(parent),
@@ -41,7 +42,18 @@ void ConnectDialog::retab()
 	QWidget::setTabOrder(last, m_ui->buttonBox);
 }
 
-void ConnectDialog::addHostEntry()
+void ConnectDialog::setSavedServers(QStringList servers)
+{
+	QString server;
+	QStringList parts;
+
+	foreach (server, servers) {
+		parts = server.split(":");
+		addHostEntry(parts[0], parts[1]);
+	}
+}
+
+void ConnectDialog::addHostEntry(QString hostname, QString portnumber)
 {
 	QHBoxLayout *server_info_horiz_layout;
 	QLabel *host_label;
@@ -92,6 +104,11 @@ void ConnectDialog::addHostEntry()
 	server_info_horiz_layout->addWidget(host->port);
 	host->host->setFocus();
 	servers.append(host);
+
+	if (hostname.length() > 0 && portnumber.length() > 0) {
+		host->host->setText(hostname);
+		host->port->setText(portnumber);
+	}
 
 	retab();
 }

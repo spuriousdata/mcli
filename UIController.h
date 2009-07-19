@@ -9,6 +9,7 @@ class ConnectDialog;
 class ConfigDialog;
 class KeyValuePrompt;
 class DialogState;
+class AppController;
 
 class UIController : public QObject
 {
@@ -16,7 +17,7 @@ class UIController : public QObject
 	Q_DISABLE_COPY(UIController)
 
 public:
-	UIController();
+	UIController(AppController *owner = 0);
 	void showMainWindow();
 	inline ConnectDialog *getConnectDialog() const {return connectDialog;}
 	inline KeyValuePrompt *getKeyValuePrompt() const {return kvPrompt;}
@@ -42,6 +43,7 @@ private:
 	KeyValuePrompt *kvPrompt;
 	DialogState *state;
 	QWidget *parent;
+	AppController *owner;
 
 	void openKeyValuePrompt(const QString& title, const QString& keyStateKey,
 							const QString& valueStateKey, const char *okSlot,

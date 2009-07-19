@@ -6,8 +6,10 @@
 #include "DialogState.h"
 #include "StatData.h"
 #include "ui_mci.h"
+#include "AppController.h"
+#include <QSettings>
 
-UIController::UIController() : QObject()
+UIController::UIController(AppController *owner) : QObject(), owner(owner)
 {
 	connectDialog = NULL;
 	configDialog = NULL;
@@ -55,12 +57,18 @@ void UIController::openConfigDialog()
 
 void UIController::openConnectDialog()
 {
+	QSettings settings(owner->settingsOrg(), owner->settingsName());
+
 	if (!connectDialog) {
 		connectDialog = new ConnectDialog(parent);
 	}
 
 	/* emit a doConnect() signal when the connectDialog's connectReady() signal is emitted */
 	connect(connectDialog, SIGNAL(connectReady()), this, SIGNAL(doConnect()));
+
+	settings.beginGroup("Connection");
+	connectDialog->setSavedServers(settings.value("servers").toStringList());
+	settings.endGroup();
 
 	connectDialog->show();
 	connectDialog->raise();

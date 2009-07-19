@@ -3,6 +3,7 @@
 
 #include <QtGui/QDialog>
 #include <QVector>
+#include <QStringList>
 #include "hostentry.h"
 #include "memcacheclient.h"
 
@@ -17,6 +18,7 @@ class ConnectDialog : public QDialog {
 public:
 	explicit ConnectDialog(QWidget *parent = 0);
 	virtual ~ConnectDialog();
+	void setSavedServers(QStringList servers);
 	QVector<HostEntry *> servers;
 
 public slots:
@@ -30,7 +32,7 @@ protected:
 
 private:
 	Ui::ConnectDialog *m_ui;
-	void addHostEntry();
+	void addHostEntry(QString hostname = "", QString portnumber = "");
 	void retab();
 };
 

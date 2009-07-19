@@ -13,8 +13,17 @@ McI::McI(QWidget *parent)
 {
 	m_ui->setupUi(this);
 
+	/* Add functionality doesn't work right now */
+	m_ui->add_button->setEnabled(false);
 	connect(m_ui->maintree, SIGNAL(collapsed(QModelIndex)), this, SLOT(resizeTreeColumns(QModelIndex)));
 	connect(m_ui->maintree, SIGNAL(expanded(QModelIndex)), this, SLOT(resizeTreeColumns(QModelIndex)));
+}
+
+void McI::setInputEnabled(bool isEnabled)
+{
+	m_ui->get_button->setEnabled(isEnabled);
+	m_ui->delete_button->setEnabled(isEnabled);
+	m_ui->flushall_button->setEnabled(isEnabled);
 }
 
 Ui::McIClass *McI::ui() const

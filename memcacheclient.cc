@@ -3,6 +3,7 @@
 #include "singlesocket.h"
 #include "StatData.h"
 #include "macros.h"
+#include "AppController.h"
 #include <QVector>
 #include <QAbstractSocket>
 #include <QDataStream>
@@ -10,8 +11,10 @@
 #include <QIODevice>
 #include <QMessageBox>
 
-MemcacheClient::MemcacheClient() : QObject(), lastCommand(NONE_CMD)
+MemcacheClient::MemcacheClient(AppController *owner) : QObject(), owner(owner)
 {
+	lastCommand = NONE_CMD;
+	responses = 0;
 	/*
 	QNetworkProxy proxy;
 	proxy.setType(QNetworkProxy::Socks5Proxy);
@@ -43,6 +46,7 @@ void MemcacheClient::mc_connect(QVector<HostEntry *> &hosts)
 	qDebug("Connected");
 
 	stats.resize(connections.size());
+	data.resize(connections.size());
 
 	/* populate the main window with some data */
 	getStats();
@@ -50,18 +54,32 @@ void MemcacheClient::mc_connect(QVector<HostEntry *> &hosts)
 
 void MemcacheClient::getStats()
 {
+	sendCommandToAll("stats\r\n", STATS_CMD);
+}
+
+void MemcacheClient::flushAll()
+{
+	sendCommandToAll("flush_all\r\n", FLUSH_CMD);
+}
+
+void MemcacheClient::sendCommandToAll(const char *command, const CommandType cmd_num)
+{
 	QTcpSocket *c;
 
-	lastCommand = STATS_CMD;
+	lastCommand = cmd_num;
+	responses = 0;
 
 	foreach (c, connections) {
-		c->write("stats\r\n");
+		c->write(command);
 	}
+
+	owner->setBusy(true);
 }
 
 /**
- * This function needs to accept differnt types of data
- *  and to add the item to only one of the servers, not all
+ * This function needs to accept differnt types of data (rather than just a string)
+ *  and to add the item to only one of the servers, not all, preferably using
+ *  a user-selectable hashing algorithm (ketema, python mod, etc.)
  *
  *  It would also be pretty slick we offered the ability to serialize the
  *  sent string in as in PHP, Python, Java, etc.
@@ -78,6 +96,10 @@ void MemcacheClient::addItem(QString UNUSED(key), QString UNUSED(data))
 	}
 }
 
+/**
+ * stateful storage of data (QVector<QString>) should be a list of 'Response'
+ * objects and response needs to be checked for errors
+ */
 void MemcacheClient::readData()
 {
 	QString data_block;
@@ -106,46 +128,71 @@ void MemcacheClient::readData()
 		delete[] s;
 	}
 
-	if (lastCommand == STATS_CMD) {
-		// clear out old stats
-		if (stats[sockid]) delete stats[sockid];
+	data[sockid] = data_block;
 
-		stats[sockid] = new StatData(
-				hosts->at(sockid)->host->text().append(":").append(hosts->at(sockid)->port->text()),
-				data_block
-		);
+	if (countResponses())
+		handleResponse();
+}
 
-		emit hasNewStats(stats);
+/**
+  * XXX
+  * there is no error checking on responses
+  */
+void MemcacheClient::handleResponse()
+{
+	int i;
+
+	owner->setBusy(false);
+
+	for (i = 0; i < data.size(); i++) {
+		switch (lastCommand) {
+			case STATS_CMD:
+				// clear out old stats
+				if (stats[i]) delete stats[i];
+				stats[i] = new StatData(
+						hosts->at(i)->host->text().append(":").append(hosts->at(i)->port->text()),
+						data[i]
+				);
+				break;
+			default:
+				break;
+		}
 	}
+
+	if (lastCommand == STATS_CMD) emit hasNewStats(stats);
+}
+
+bool MemcacheClient::countResponses()
+{
+	if (++responses == connections.size()) {
+		responses = 0;
+		return true;
+	} else return false;
 }
 
 void MemcacheClient::socketError(QAbstractSocket::SocketError err)
 {
 	switch (err) {
 		case QAbstractSocket::RemoteHostClosedError:
-			QMessageBox::information(NULL,
-									 tr("Memcache Inspector"),
-									 tr("The connection to the "
-										"server has been terminated"));
+			owner->alert(tr("Memcache Inspector"), tr("The connection to the "
+						"server has been terminated")
+			);
 			break;
 		case QAbstractSocket::HostNotFoundError:
-			QMessageBox::information(NULL,
-									 tr("Memcache Inspector"),
-									 tr("The host was not found. Please check "
-										"the host name and port settings."));
+			owner->alert(tr("Memcache Inspector"), tr("The host was not found. "
+						"Please check the host name and port settings.")
+			);
 			break;
 		case QAbstractSocket::ConnectionRefusedError:
-			QMessageBox::information(NULL,
-									 tr("Memcache Inspector"),
-									 tr("The connection was refused by the peer. "
-										"Make sure the memcache server is running, "
-										"and check that the host name and port "
-										"settings are correct."));
+			owner->alert(tr("Memcache Inspector"), tr("The connection was "
+						"refused by the peer. Make sure the memcache server "
+						"is running, and check that the host name and port "
+						"settings are correct.")
+			);
 			break;
 		default:
-			QMessageBox::information(NULL,
-									tr("Memcache Inspector"),
-									tr("The following error occurred:"
-									   "."));
+			owner->alert(tr("Memcache Inspector"), tr("An Unknown error "
+						"occurred.")
+			);
 	}
 }

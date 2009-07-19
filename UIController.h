@@ -2,12 +2,14 @@
 #define UICONTROLLER_H
 
 #include <QObject>
+#include <QString>
 #include "StatData.h"
 
 class McI;
 class ConnectDialog;
 class ConfigDialog;
 class KeyValuePrompt;
+class BusyIndicator;
 class DialogState;
 class AppController;
 
@@ -19,6 +21,8 @@ class UIController : public QObject
 public:
 	UIController(AppController *owner = 0);
 	void showMainWindow();
+	void alert(QString& title, QString& body);
+	void setBusy(bool isBusy);
 	inline ConnectDialog *getConnectDialog() const {return connectDialog;}
 	inline KeyValuePrompt *getKeyValuePrompt() const {return kvPrompt;}
 
@@ -34,6 +38,7 @@ signals:
 	void doAdd();
 	void doGet();
 	void doDelete();
+	void doFlushAll();
 	void hasNewStats(QVector<StatData *>&);
 
 private:
@@ -41,6 +46,7 @@ private:
 	ConnectDialog *connectDialog;
 	ConfigDialog *configDialog;
 	KeyValuePrompt *kvPrompt;
+	BusyIndicator *busy;
 	DialogState *state;
 	QWidget *parent;
 	AppController *owner;

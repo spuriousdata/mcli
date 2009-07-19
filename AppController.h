@@ -14,7 +14,9 @@ public:
 	AppController();
 	~AppController();
 	void run();
-	inline const QString settingsOrg() const {return "com.spuriousdata"; }
+	void alert(QString title, QString body);
+	void setBusy(bool isBusy);
+	inline const QString settingsOrg() const {return "spuriousdata"; }
 	inline const QString settingsName() const {return "mci";}
 
 public slots:

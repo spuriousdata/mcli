@@ -3,17 +3,20 @@
 #include "ConfigDialog.h"
 #include "ConnectDialog.h"
 #include "KeyValuePrompt.h"
+#include "BusyIndicator.h"
 #include "DialogState.h"
 #include "StatData.h"
 #include "ui_mci.h"
 #include "AppController.h"
 #include <QSettings>
+#include <QMessageBox>
 
 UIController::UIController(AppController *owner) : QObject(), owner(owner)
 {
 	connectDialog = NULL;
 	configDialog = NULL;
 	kvPrompt = NULL;
+	busy = NULL;
 
 	state = new DialogState();
 	mciDialog = new McI();
@@ -41,7 +44,31 @@ UIController::UIController(AppController *owner) : QObject(), owner(owner)
 	connect(mciDialog->ui()->delete_button, SIGNAL(clicked()),
 			this, SLOT(promptForDelete()));
 
+	/* doFlushAll */
+	connect(mciDialog->ui()->flushall_button, SIGNAL(clicked()),
+			this, SIGNAL(doFlushAll()));
+
 	connect(this, SIGNAL(hasNewStats(QVector<StatData*>&)), mciDialog, SLOT(displayStats(QVector<StatData *>&)));
+}
+
+void UIController::setBusy(bool isBusy)
+{
+	if (isBusy) {
+		if (!busy) {
+			busy = new BusyIndicator(mciDialog);
+		}
+		busy->show();
+		busy->raise();
+		busy->activateWindow();
+	} else {
+		busy->hide();
+	}
+	mciDialog->setInputEnabled(!isBusy);
+}
+
+void UIController::alert(QString& title, QString& body)
+{
+	QMessageBox::information(mciDialog, title, body);
 }
 
 void UIController::openConfigDialog()
@@ -57,18 +84,21 @@ void UIController::openConfigDialog()
 
 void UIController::openConnectDialog()
 {
-	QSettings settings(owner->settingsOrg(), owner->settingsName());
 
 	if (!connectDialog) {
+		QSettings settings(owner->settingsOrg(), owner->settingsName());
+
 		connectDialog = new ConnectDialog(parent);
+
+		settings.beginGroup("Connection");
+		connectDialog->setSavedServers(settings.value("servers").toStringList());
+		settings.endGroup();
 	}
 
 	/* emit a doConnect() signal when the connectDialog's connectReady() signal is emitted */
 	connect(connectDialog, SIGNAL(connectReady()), this, SIGNAL(doConnect()));
 
-	settings.beginGroup("Connection");
-	connectDialog->setSavedServers(settings.value("servers").toStringList());
-	settings.endGroup();
+
 
 	connectDialog->show();
 	connectDialog->raise();

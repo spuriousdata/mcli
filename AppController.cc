@@ -10,13 +10,24 @@
 AppController::AppController()
 {
 	ui_controller = new UIController(this);
-	memcache = new MemcacheClient();
+	memcache = new MemcacheClient(this);
 
 	connect(ui_controller, SIGNAL(doConnect()), this, SLOT(mcConnect()));
 	connect(ui_controller,SIGNAL(doAdd()), this, SLOT(addItem()));
 	connect(ui_controller, SIGNAL(doGet()), this, SLOT(getItem()));
 	connect(ui_controller, SIGNAL(doDelete()), this, SLOT(deleteItem()));
+	connect(ui_controller, SIGNAL(doFlushAll()), memcache, SLOT(flushAll()));
 	connect(memcache, SIGNAL(hasNewStats(QVector<StatData *>&)), ui_controller, SIGNAL(hasNewStats(QVector<StatData *>&)));
+}
+
+void AppController::setBusy(bool isBusy)
+{
+	ui_controller->setBusy(isBusy);
+}
+
+void AppController::alert(QString title, QString body)
+{
+	ui_controller->alert(title, body);
 }
 
 void AppController::mcConnect()

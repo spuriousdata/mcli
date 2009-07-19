@@ -1,5 +1,6 @@
 #include "ConnectDialog.h"
 #include "ui_connect_dialog.h"
+#include "HostEntry.h"
 #include <QLabel>
 #include <QSpacerItem>
 #include <QRegExp>
@@ -42,12 +43,12 @@ void ConnectDialog::retab()
 	QWidget::setTabOrder(last, m_ui->buttonBox);
 }
 
-void ConnectDialog::setSavedServers(QStringList servers)
+void ConnectDialog::setSavedServers(QStringList savedServers)
 {
 	QString server;
 	QStringList parts;
 
-	foreach (server, servers) {
+	foreach (server, savedServers) {
 		parts = server.split(":");
 		addHostEntry(parts[0], parts[1]);
 	}

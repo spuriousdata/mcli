@@ -18,6 +18,7 @@ class McI : public QMainWindow
 public:
 	McI(QWidget *parent = 0);
 	Ui::McIClass *ui() const;
+	void setInputEnabled(bool isEnabled);
 	~McI();
 
 public slots:

@@ -64,7 +64,7 @@
        </spacer>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <layout class="QHBoxLayout" name="buttonLayout">
         <property name="sizeConstraint">
          <enum>QLayout::SetFixedSize</enum>
         </property>

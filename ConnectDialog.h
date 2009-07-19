@@ -18,7 +18,7 @@ class ConnectDialog : public QDialog {
 public:
 	explicit ConnectDialog(QWidget *parent = 0);
 	virtual ~ConnectDialog();
-	void setSavedServers(QStringList servers);
+	void setSavedServers(QStringList savedServers);
 	QVector<HostEntry *> servers;
 
 public slots:

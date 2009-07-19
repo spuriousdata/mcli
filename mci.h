@@ -3,9 +3,8 @@
 
 #include <QtGui/QMainWindow>
 #include <QModelIndex>
-#include "connect_dialog.h"
-#include "ConfigDialog.h"
-#include "KeyValuePrompt.h"
+
+class StatData;
 
 namespace Ui
 {
@@ -18,25 +17,15 @@ class McI : public QMainWindow
 
 public:
 	McI(QWidget *parent = 0);
+	Ui::McIClass *ui() const;
 	~McI();
 
 public slots:
-	void openConnectDialog();
-	void openConfigDialog();
-	void openKeyValuePrompt();
-	void addClicked();
-	void do_add();
-	void deleteClicked();
-	void getClicked();
-	void flushallClicked();
-	void displayStats();
+	void displayStats(QVector<StatData *> &data);
 	void resizeTreeColumns(const QModelIndex& index);
 
 private:
-	Ui::McIClass *ui;
-	ConnectDialog *connect_dialog;
-	ConfigDialog *config_dialog;
-	KeyValuePrompt *kv_prompt;
+	Ui::McIClass *m_ui;
 };
 
 #endif // MCI_H

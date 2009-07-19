@@ -12,14 +12,16 @@ class StatData;
 class MemcacheClient : public QObject
 {
 	Q_OBJECT
+	Q_DISABLE_COPY(MemcacheClient)
 public:
-	MemcacheClient(QObject *parent = 0);
-	void mc_connect(QVector<HostEntry *>* hosts);
+	MemcacheClient();
+	void mc_connect(QVector<HostEntry *> &hosts);
+	void addItem(QString& key, QString& data);
 	QVector<SingleSocket *> connections;
-	QVector<StatData*> stats;
+	QVector<StatData *> stats;
 
 signals:
-	void hasNewStats();
+	void hasNewStats(QVector<StatData *>&);
 
 private slots:
 	void readData();
@@ -28,6 +30,14 @@ private slots:
 private:
 	QVector<HostEntry *> *hosts;
 	void getStats();
+	enum CommandState {
+		NONE,
+		STATS,
+		GET,
+		SET,
+		DELETE,
+		FLUSH
+	} lastCommand;
 };
 
 #endif // MEMCACHECLIENT_H

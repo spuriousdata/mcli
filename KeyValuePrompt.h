@@ -17,6 +17,7 @@ public:
 	void setValue(const QString& value);
 	QString key() const;
 	QString value() const;
+	void showValueField(bool show);
 	QDialogButtonBox *buttonBox() const;
 
 

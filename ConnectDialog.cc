@@ -1,6 +1,5 @@
-#include "connect_dialog.h"
+#include "ConnectDialog.h"
 #include "ui_connect_dialog.h"
-#include "memcacheclient.h"
 #include <QLabel>
 #include <QSpacerItem>
 #include <QRegExp>
@@ -9,27 +8,24 @@
 
 ConnectDialog::ConnectDialog(QWidget *parent) :
 	QDialog(parent),
-	m_ui(new Ui::ConnectDialog),
-	mc(new MemcacheClient())
+	m_ui(new Ui::ConnectDialog)
 {
 	m_ui->setupUi(this);
+
 	connect(m_ui->addserver_button, SIGNAL(clicked()), this, SLOT(addServerClicked()));
-	connect(m_ui->buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(memcache_connect()));
+
+	/* emit a connectRead() signal when the OK button is pushed */
+	connect(m_ui->buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SIGNAL(connectReady()));
+
 	m_ui->scrolling_contents->setLayout(new QVBoxLayout);
 	m_ui->scrolling_contents->layout()->setContentsMargins(0, 0, 0, 0);
 	m_ui->scrolling_contents->layout()->setSizeConstraint(QLayout::SetMinimumSize);
 
-	connect(mc, SIGNAL(hasNewStats()), parent, SLOT(displayStats()));
 }
 
 void ConnectDialog::addServerClicked()
 {
 	this->addHostEntry();
-}
-
-void ConnectDialog::memcache_connect()
-{
-	mc->mc_connect(&servers);
 }
 
 void ConnectDialog::retab()

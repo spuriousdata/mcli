@@ -28,6 +28,12 @@ QString KeyValuePrompt::value() const
 	return ui->value->toPlainText();
 }
 
+void KeyValuePrompt::showValueField(bool show)
+{
+	ui->value->setVisible(show);
+	ui->value_label->setVisible(show);
+}
+
 QDialogButtonBox *KeyValuePrompt::buttonBox() const
 {
 	return ui->buttonBox;

@@ -1,10 +1,10 @@
 #include <QtGui/QApplication>
-#include "mci.h"
+#include "AppController.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    McI w;
-    w.show();
-    return a.exec();
+	QApplication a(argc, argv);
+	AppController c;
+	c.run();
+	return a.exec();
 }

@@ -1,8 +1,9 @@
 #include "StatsModel.h"
 #include <QtGui>
 #include "TreeNode.h"
+#include "macros.h"
 
-int StatsModel::columnCount(const QModelIndex& parent) const
+int StatsModel::columnCount(const QModelIndex& UNUSED(parent)) const
 {
 	return 3;
 }

@@ -22,9 +22,10 @@ public:
 public slots:
 	void mcConnect();
 	void addItem();
-/*	void getItem();
-	void deleteItem();
-*/
+	void getItem();
+	//void deleteItem();
+	void configure();
+
 private:
 	UIController *ui_controller;
 	MemcacheClient *memcache;

@@ -15,8 +15,8 @@ McI::McI(QWidget *parent)
 
 	/* Add functionality doesn't work right now */
 	m_ui->add_button->setEnabled(false);
-	connect(m_ui->maintree, SIGNAL(collapsed(QModelIndex)), this, SLOT(resizeTreeColumns(QModelIndex)));
-	connect(m_ui->maintree, SIGNAL(expanded(QModelIndex)), this, SLOT(resizeTreeColumns(QModelIndex)));
+	connect(m_ui->statsTreeView, SIGNAL(collapsed(QModelIndex)), this, SLOT(resizeTreeColumns(QModelIndex)));
+	connect(m_ui->statsTreeView, SIGNAL(expanded(QModelIndex)), this, SLOT(resizeTreeColumns(QModelIndex)));
 }
 
 void McI::setInputEnabled(bool isEnabled)
@@ -34,7 +34,7 @@ Ui::McIClass *McI::ui() const
 void McI::resizeTreeColumns(const QModelIndex& index)
 {
 	for (int i = 0; i < index.model()->columnCount(QModelIndex()); i++)
-		m_ui->maintree->resizeColumnToContents(i);
+		m_ui->statsTreeView->resizeColumnToContents(i);
 }
 
 void McI::displayStats(QVector<StatData *> &data)
@@ -44,6 +44,12 @@ void McI::displayStats(QVector<StatData *> &data)
 	StatData *sd;
 	TreeNode *rootNode, *serverNode, *statNode;
 	TreeModel *model;
+
+	m_ui->mainTabs->setCurrentIndex(0);
+	if (m_ui->statsTreeView->model()) {
+		delete dynamic_cast<QSortFilterProxyModel *>(m_ui->statsTreeView->model())->sourceModel();
+		delete m_ui->statsTreeView->model();
+	}
 
 	rootNode = new TreeNode();
 
@@ -69,9 +75,9 @@ void McI::displayStats(QVector<StatData *> &data)
 	model->setRootNode(rootNode);
 	QSortFilterProxyModel *sortModel = new QSortFilterProxyModel(this);
 	sortModel->setSourceModel(model);
-	m_ui->maintree->setModel(sortModel);
+	m_ui->statsTreeView->setModel(sortModel);
 	for (int i = 0; i < model->columnCount(QModelIndex()); i++)
-		m_ui->maintree->resizeColumnToContents(i);
+		m_ui->statsTreeView->resizeColumnToContents(i);
 }
 
 McI::~McI()

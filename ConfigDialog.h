@@ -4,23 +4,24 @@
 #include <QtGui/QDialog>
 
 namespace Ui {
-    class ConfigDialog;
+	class ConfigDialog;
 }
 
 class ConfigDialog : public QDialog
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(ConfigDialog)
+	Q_OBJECT
+	Q_DISABLE_COPY(ConfigDialog)
 
 public:
-    ConfigDialog(QWidget *parent = 0);
-    virtual ~ConfigDialog();
+	ConfigDialog(QWidget *parent = 0);
+	const Ui::ConfigDialog *ui() const {return m_ui;}
+	virtual ~ConfigDialog();
 
-public slots:
-    void toggle_unpw(int val);
+signals:
+	void configDone();
 
 private:
-    Ui::ConfigDialog *ui;
+	Ui::ConfigDialog *m_ui;
 
 };
 

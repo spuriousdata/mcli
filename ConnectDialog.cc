@@ -1,5 +1,5 @@
 #include "ConnectDialog.h"
-#include "ui_connect_dialog.h"
+#include "ui_ConnectDialog.h"
 #include "HostEntry.h"
 #include <QLabel>
 #include <QSpacerItem>

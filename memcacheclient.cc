@@ -10,20 +10,12 @@
 #include <QByteArray>
 #include <QIODevice>
 #include <QMessageBox>
+#include <QNetworkProxy>
 
 MemcacheClient::MemcacheClient(AppController *owner) : QObject(), owner(owner)
 {
 	lastCommand = NONE_CMD;
 	responses = 0;
-	/*
-	QNetworkProxy proxy;
-	proxy.setType(QNetworkProxy::Socks5Proxy);
-	proxy.setHostName("proxy.example.com");
-	proxy.setPort(1080);
-	proxy.setUser("username");
-	proxy.setPassword("password");
-	QNetworkProxy::setApplicationProxy(proxy);
- */
 }
 
 void MemcacheClient::mc_connect(QVector<HostEntry *> &hosts)
@@ -34,9 +26,18 @@ void MemcacheClient::mc_connect(QVector<HostEntry *> &hosts)
 
 	this->hosts = &hosts;
 
+	cleanAll();
+
+	QNetworkProxy proxy;
+	QString phn;
+
 	foreach (h, hosts) {
 		id = connections.size();
 		s = new SingleSocket(id, this);
+
+		proxy = QNetworkProxy::applicationProxy();
+		phn = proxy.hostName();
+
 		connect(s, SIGNAL(readyRead()), this, SLOT(readData()));
 		connect(s, SIGNAL(error(QAbstractSocket::SocketError)),
 				this, SLOT(socketError(QAbstractSocket::SocketError)));
@@ -52,6 +53,25 @@ void MemcacheClient::mc_connect(QVector<HostEntry *> &hosts)
 	getStats();
 }
 
+void MemcacheClient::cleanAll()
+{
+	SingleSocket *s;
+	StatData *sd;
+
+	foreach (s, connections) {
+		s->close();
+		delete s;
+	}
+
+	foreach (sd, stats) {
+		delete sd;
+	}
+
+	connections.clear();
+	stats.clear();
+	data.clear();
+}
+
 void MemcacheClient::getStats()
 {
 	sendCommandToAll("stats\r\n", STATS_CMD);
@@ -60,6 +80,11 @@ void MemcacheClient::getStats()
 void MemcacheClient::flushAll()
 {
 	sendCommandToAll("flush_all\r\n", FLUSH_CMD);
+}
+
+void MemcacheClient::getItem(QString key)
+{
+	sendCommandToAll(QString("get %1\r\n").arg(key).toAscii(), RET_CMD);
 }
 
 void MemcacheClient::sendCommandToAll(const char *command, const CommandType cmd_num)
@@ -153,6 +178,9 @@ void MemcacheClient::handleResponse()
 						hosts->at(i)->host->text().append(":").append(hosts->at(i)->port->text()),
 						data[i]
 				);
+				break;
+			case RET_CMD:
+
 				break;
 			default:
 				break;

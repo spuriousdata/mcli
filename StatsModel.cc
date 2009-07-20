@@ -19,7 +19,7 @@ QVariant StatsModel::data(const QModelIndex& index, int role) const
 	if (!node) return QVariant();
 
 	i = index.column();
-	if (i >= 0 && i < 4)
+	if (i >= 0 && i < 3)
 		return node->data.at(i);
 
 	else return QVariant();

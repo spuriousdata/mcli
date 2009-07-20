@@ -19,7 +19,8 @@ SOURCES += main.cc \
     AppController.cc \
     UIController.cc \
     DialogState.cc \
-    BusyIndicator.cc
+    BusyIndicator.cc \
+    GetModel.cc
 HEADERS += mci.h \
     hostentry.h \
     singlesocket.h \
@@ -35,8 +36,10 @@ HEADERS += mci.h \
     UIController.h \
     DialogState.h \
     macros.h \
-    BusyIndicator.h
+    BusyIndicator.h \
+    GetModel.h
 FORMS += mci.ui \
     config.ui \
     KeyValuePrompt.ui \
-    BusyIndicator.ui
+    BusyIndicator.ui \
+    ConnectDialog.ui

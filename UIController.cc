@@ -48,6 +48,11 @@ UIController::UIController(AppController *owner) : QObject(), owner(owner)
 	connect(mciDialog->ui()->flushall_button, SIGNAL(clicked()),
 			this, SIGNAL(doFlushAll()));
 
+	/* doGetStats */
+	connect(mciDialog->ui()->getstats_button, SIGNAL(clicked()),
+			this, SIGNAL(doGetStats()));
+
+	/* connect stats handler to hasNewStats signal */
 	connect(this, SIGNAL(hasNewStats(QVector<StatData*>&)), mciDialog, SLOT(displayStats(QVector<StatData *>&)));
 }
 
@@ -75,6 +80,7 @@ void UIController::openConfigDialog()
 {
 	if (!configDialog) {
 		configDialog = new ConfigDialog(parent);
+		connect(configDialog, SIGNAL(configDone()), this, SIGNAL(doConfigDone()));
 	}
 
 	configDialog->show();

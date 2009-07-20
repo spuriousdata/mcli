@@ -25,6 +25,7 @@ public:
 	void setBusy(bool isBusy);
 	inline ConnectDialog *getConnectDialog() const {return connectDialog;}
 	inline KeyValuePrompt *getKeyValuePrompt() const {return kvPrompt;}
+	inline ConfigDialog *getConfigDialog() const {return configDialog;}
 
 public slots:
 	void openConfigDialog();
@@ -39,6 +40,8 @@ signals:
 	void doGet();
 	void doDelete();
 	void doFlushAll();
+	void doGetStats();
+	void doConfigDone();
 	void hasNewStats(QVector<StatData *>&);
 
 private:

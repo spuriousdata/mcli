@@ -16,13 +16,17 @@ class MemcacheClient : public QObject
 	Q_DISABLE_COPY(MemcacheClient)
 public:
 	MemcacheClient(AppController *owner);
+	~MemcacheClient() {cleanAll();}
 	void mc_connect(QVector<HostEntry *> &hosts);
+	inline bool isConnected() { return (connections.size() > 0) ? true:false;}
 	void addItem(QString key, QString data);
+	void getItem(QString key);
 	QVector<SingleSocket *> connections;
 	QVector<StatData *> stats;
 
 public slots:
 	void flushAll();
+	void getStats();
 
 signals:
 	void hasNewStats(QVector<StatData *>&);
@@ -36,7 +40,6 @@ private:
 	QVector<QString> data;
 	AppController *owner;
 	int responses;
-	void getStats();
 	void handleResponse();
 	bool countResponses();
 	enum CommandType {
@@ -50,6 +53,7 @@ private:
 		VERSION_CMD
 	} lastCommand;
 	void sendCommandToAll(const char *command, const CommandType cmd_num);
+	void cleanAll();
 
 };
 

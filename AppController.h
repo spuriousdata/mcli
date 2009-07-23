@@ -2,6 +2,7 @@
 #define APPCONTROLLER_H
 
 #include <QWidget>
+#include <QNetworkProxy>
 
 class UIController;
 class MemcacheClient;
@@ -24,11 +25,12 @@ public slots:
 	void addItem();
 	void getItem();
 	//void deleteItem();
-	void configure();
+	void configureFromDialog();
 
 private:
 	UIController *ui_controller;
 	MemcacheClient *memcache;
+	void configure();
 
 };
 

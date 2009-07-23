@@ -20,7 +20,9 @@ SOURCES += main.cc \
     UIController.cc \
     DialogState.cc \
     BusyIndicator.cc \
-    GetModel.cc
+    GetModel.cc \
+    GetData.cc \
+    GetItem.cc
 HEADERS += mci.h \
     hostentry.h \
     singlesocket.h \
@@ -36,8 +38,15 @@ HEADERS += mci.h \
     UIController.h \
     DialogState.h \
     macros.h \
+<<<<<<< .mine
+    BusyIndicator.h \
+    GetModel.h \
+    GetData.h \
+    GetItem.h
+=======
     BusyIndicator.h \
     GetModel.h
+>>>>>>> .r76
 FORMS += mci.ui \
     config.ui \
     KeyValuePrompt.ui \

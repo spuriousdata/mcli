@@ -54,6 +54,9 @@ UIController::UIController(AppController *owner) : QObject(), owner(owner)
 
 	/* connect stats handler to hasNewStats signal */
 	connect(this, SIGNAL(hasNewStats(QVector<StatData*>&)), mciDialog, SLOT(displayStats(QVector<StatData *>&)));
+
+		/* connect get handler to hasNewGet signal */
+	connect(this, SIGNAL(hasNewGet(QVector<GetData*>&)), mciDialog, SLOT(displayGet(QVector<GetData *>&)));
 }
 
 void UIController::setBusy(bool isBusy)
@@ -79,8 +82,19 @@ void UIController::alert(QString& title, QString& body)
 void UIController::openConfigDialog()
 {
 	if (!configDialog) {
+		QSettings settings(owner->settingsOrg(), owner->settingsName());
+
 		configDialog = new ConfigDialog(parent);
 		connect(configDialog, SIGNAL(configDone()), this, SIGNAL(doConfigDone()));
+
+		settings.beginGroup("SocksProxy");
+		configDialog->setUseSocks(settings.value("use").toBool());
+		configDialog->setSocksHost(settings.value("host").toString());
+		configDialog->setSocksPort(settings.value("port").toString());
+		configDialog->setSocksUser(settings.value("user").toString());
+		configDialog->setSocksPass(settings.value("pass").toString());
+		configDialog->setSocksDns(settings.value("dns").toBool());
+		settings.endGroup();
 	}
 
 	configDialog->show();

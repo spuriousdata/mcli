@@ -5,6 +5,7 @@
 #include <QModelIndex>
 
 class StatData;
+class GetData;
 
 namespace Ui
 {
@@ -23,6 +24,7 @@ public:
 
 public slots:
 	void displayStats(QVector<StatData *> &data);
+	void displayGet(QVector<GetData *> &data);
 	void resizeTreeColumns(const QModelIndex& index);
 
 private:

@@ -5,9 +5,11 @@
 #include <QObject>
 #include <QVector>
 #include <QAbstractSocket>
+#include <QByteArray>
 
 class SingleSocket;
 class StatData;
+class GetData;
 class AppController;
 
 class MemcacheClient : public QObject
@@ -23,6 +25,7 @@ public:
 	void getItem(QString key);
 	QVector<SingleSocket *> connections;
 	QVector<StatData *> stats;
+	QVector<GetData *> get;
 
 public slots:
 	void flushAll();
@@ -30,6 +33,7 @@ public slots:
 
 signals:
 	void hasNewStats(QVector<StatData *>&);
+	void hasNewGet(QVector<GetData *>&);
 
 private slots:
 	void readData();
@@ -37,7 +41,7 @@ private slots:
 
 private:
 	QVector<HostEntry *> *hosts;
-	QVector<QString> data;
+	QVector<QByteArray> data;
 	AppController *owner;
 	int responses;
 	void handleResponse();

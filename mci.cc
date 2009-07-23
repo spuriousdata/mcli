@@ -2,7 +2,10 @@
 #include "ui_mci.h"
 #include "TreeNode.h"
 #include "StatsModel.h"
+#include "GetModel.h"
 #include "StatData.h"
+#include "GetData.h"
+#include "GetItem.h"
 #include "UIController.h"
 #include "AppController.h"
 
@@ -37,13 +40,51 @@ void McI::resizeTreeColumns(const QModelIndex& index)
 		m_ui->statsTreeView->resizeColumnToContents(i);
 }
 
+void McI::displayGet(QVector<GetData *> &data)
+{
+	QStringList parts, lineItem;
+	QString line;
+	TreeNode *rootNode, *serverNode, *getNode;
+	GetModel *model;
+	GetData *gd;
+	GetItem *item;
+
+	m_ui->mainTabs->setCurrentIndex(1);
+	if (m_ui->retTreeView->model())
+		delete m_ui->retTreeView->model();
+
+	rootNode = new TreeNode();
+
+	foreach (gd, data) {
+		if (gd == NULL) continue;
+		lineItem.clear();
+		lineItem << gd->server << "" << "" << "" << "";
+		serverNode = new TreeNode(lineItem, rootNode);
+		rootNode->children.append(serverNode);
+		foreach (item, gd->items) {
+			lineItem.clear();
+			lineItem << "" << item->key << item->flags
+					<< QString("%1").arg(item->data.length()) << item->data;
+			getNode = new TreeNode(lineItem, serverNode);
+			serverNode->children.append(getNode);
+		}
+	}
+
+	model = new GetModel();
+	model->setRootNode(rootNode);
+	m_ui->retTreeView->setModel(model);
+	for (int i = 0; i < model->columnCount(QModelIndex()); i++)
+		m_ui->retTreeView->resizeColumnToContents(i);
+
+}
+
 void McI::displayStats(QVector<StatData *> &data)
 {
 	QString line;
 	QStringList parts, lineItem;
 	StatData *sd;
 	TreeNode *rootNode, *serverNode, *statNode;
-	TreeModel *model;
+	StatsModel *model;
 
 	m_ui->mainTabs->setCurrentIndex(0);
 	if (m_ui->statsTreeView->model()) {

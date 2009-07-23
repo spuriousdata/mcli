@@ -15,6 +15,12 @@ class ConfigDialog : public QDialog
 public:
 	ConfigDialog(QWidget *parent = 0);
 	const Ui::ConfigDialog *ui() const {return m_ui;}
+	void setUseSocks(bool f);
+	void setSocksDns(bool f);
+	void setSocksHost(QString host);
+	void setSocksPort(QString port);
+	void setSocksUser(QString user);
+	void setSocksPass(QString pass);
 	virtual ~ConfigDialog();
 
 signals:

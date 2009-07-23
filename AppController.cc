@@ -6,6 +6,8 @@
 #include "KeyValuePrompt.h"
 #include "ui_config.h"
 #include "HostEntry.h"
+#include "StatData.h"
+#include "GetData.h"
 #include <QSettings>
 #include <QVector>
 #include <QNetworkProxy>
@@ -16,13 +18,16 @@ AppController::AppController()
 	memcache = new MemcacheClient(this);
 
 	connect(ui_controller, SIGNAL(doConnect()), this, SLOT(mcConnect()));
-	connect(ui_controller, SIGNAL(doConfigDone()), this, SLOT(configure()));
+	connect(ui_controller, SIGNAL(doConfigDone()), this, SLOT(configureFromDialog()));
 	connect(ui_controller,SIGNAL(doAdd()), this, SLOT(addItem()));
 	connect(ui_controller, SIGNAL(doGet()), this, SLOT(getItem()));
 	connect(ui_controller, SIGNAL(doDelete()), this, SLOT(deleteItem()));
 	connect(ui_controller, SIGNAL(doFlushAll()), memcache, SLOT(flushAll()));
 	connect(ui_controller, SIGNAL(doGetStats()), memcache, SLOT(getStats()));
 	connect(memcache, SIGNAL(hasNewStats(QVector<StatData *>&)), ui_controller, SIGNAL(hasNewStats(QVector<StatData *>&)));
+	connect(memcache, SIGNAL(hasNewGet(QVector<GetData *>&)), ui_controller, SIGNAL(hasNewGet(QVector<GetData *>&)));
+
+	configure();
 }
 
 void AppController::setBusy(bool isBusy)
@@ -37,7 +42,35 @@ void AppController::alert(QString title, QString body)
 
 void AppController::configure()
 {
-	QNetworkProxy proxy;
+	QSettings settings(settingsOrg(), settingsName());
+
+	settings.beginGroup("SocksProxy");
+	if (settings.value("use").toBool()) {
+		if (settings.value("user").toString().length() > 0) {
+			QNetworkProxy::setApplicationProxy(
+					QNetworkProxy(
+							QNetworkProxy::Socks5Proxy,
+							settings.value("host").toString(),
+							settings.value("port").toInt(),
+							settings.value("user").toString(),
+							settings.value("pass").toString()
+					)
+			);
+		} else {
+			QNetworkProxy::setApplicationProxy(
+				QNetworkProxy(
+					QNetworkProxy::Socks5Proxy,
+					settings.value("host").toString(),
+					settings.value("port").toInt()
+					)
+			);
+		}
+	}
+}
+
+void AppController::configureFromDialog()
+{
+	QSettings settings(settingsOrg(), settingsName());
 	QString proxyhost, proxyport, proxyuser, proxypass;
 	bool use_socks;
 	bool socks_dns;
@@ -52,23 +85,40 @@ void AppController::configure()
 
 		socks_dns = ui_controller->getConfigDialog()->ui()->socks_dns->isChecked();
 
-		proxy.setType(QNetworkProxy::Socks5Proxy);
-		proxy.setHostName(proxyhost);
-		proxy.setPort(proxyport.toInt());
-
-		if (socks_dns) {
-			proxy.setCapabilities(QNetworkProxy::HostNameLookupCapability);
-		}
+		settings.beginGroup("SocksProxy");
+		settings.setValue("use", true);
+		settings.setValue("host", proxyhost);
+		settings.setValue("port", proxyport);
+		settings.setValue("user", proxyuser);
+		settings.setValue("pass", proxypass);
+		settings.setValue("dns", socks_dns);
+		settings.endGroup();
 
 		if (proxyuser.length() > 0) {
-			proxy.setUser(proxyuser);
-			proxy.setPassword(proxypass);
+			QNetworkProxy::setApplicationProxy(
+				QNetworkProxy(
+						QNetworkProxy::Socks5Proxy,
+					proxyhost,
+					proxyport.toInt(),
+					proxyuser,
+					proxypass
+				)
+			);
+		} else {
+			QNetworkProxy::setApplicationProxy(
+					QNetworkProxy(
+						QNetworkProxy::Socks5Proxy,
+						proxyhost,
+						proxyport.toInt()
+					)
+			);
 		}
-
-		QNetworkProxy::setApplicationProxy(proxy);
 	} else {
-		proxy.setType(QNetworkProxy::NoProxy);
-		QNetworkProxy::setApplicationProxy(proxy);
+		settings.beginGroup("SocksProxy");
+		settings.setValue("use", false);
+		settings.endGroup();
+
+		QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::NoProxy));
 	}
 
 	// reconnect

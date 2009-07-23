@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 #include "StatData.h"
+#include "GetData.h"
 
 class McI;
 class ConnectDialog;
@@ -43,6 +44,7 @@ signals:
 	void doGetStats();
 	void doConfigDone();
 	void hasNewStats(QVector<StatData *>&);
+	void hasNewGet(QVector<GetData *>&);
 
 private:
 	McI *mciDialog;

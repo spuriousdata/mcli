@@ -2,6 +2,7 @@
 #include "hostentry.h"
 #include "singlesocket.h"
 #include "StatData.h"
+#include "GetData.h"
 #include "macros.h"
 #include "AppController.h"
 #include <QVector>
@@ -11,6 +12,7 @@
 #include <QIODevice>
 #include <QMessageBox>
 #include <QNetworkProxy>
+#include <QByteArray>
 
 MemcacheClient::MemcacheClient(AppController *owner) : QObject(), owner(owner)
 {
@@ -28,25 +30,21 @@ void MemcacheClient::mc_connect(QVector<HostEntry *> &hosts)
 
 	cleanAll();
 
-	QNetworkProxy proxy;
-	QString phn;
-
 	foreach (h, hosts) {
 		id = connections.size();
 		s = new SingleSocket(id, this);
 
-		proxy = QNetworkProxy::applicationProxy();
-		phn = proxy.hostName();
-
 		connect(s, SIGNAL(readyRead()), this, SLOT(readData()));
 		connect(s, SIGNAL(error(QAbstractSocket::SocketError)),
 				this, SLOT(socketError(QAbstractSocket::SocketError)));
+
 		s->connectToHost(h->host->text(), h->port->text().toInt());
 		connections.append(s);
 	}
 	qDebug("Connected");
 
 	stats.resize(connections.size());
+	get.resize(connections.size());
 	data.resize(connections.size());
 
 	/* populate the main window with some data */
@@ -55,17 +53,9 @@ void MemcacheClient::mc_connect(QVector<HostEntry *> &hosts)
 
 void MemcacheClient::cleanAll()
 {
-	SingleSocket *s;
-	StatData *sd;
-
-	foreach (s, connections) {
-		s->close();
-		delete s;
-	}
-
-	foreach (sd, stats) {
-		delete sd;
-	}
+	qDeleteAll(stats);
+	qDeleteAll(connections);
+	qDeleteAll(get);
 
 	connections.clear();
 	stats.clear();
@@ -94,6 +84,9 @@ void MemcacheClient::sendCommandToAll(const char *command, const CommandType cmd
 	lastCommand = cmd_num;
 	responses = 0;
 
+	qDeleteAll(stats);
+	qDeleteAll(get);
+
 	foreach (c, connections) {
 		c->write(command);
 	}
@@ -102,12 +95,12 @@ void MemcacheClient::sendCommandToAll(const char *command, const CommandType cmd
 }
 
 /**
- * This function needs to accept differnt types of data (rather than just a string)
- *  and to add the item to only one of the servers, not all, preferably using
- *  a user-selectable hashing algorithm (ketema, python mod, etc.)
+ * This function needs to accept differnt types of data (rather than just a
+ * string) and to add the item to only one of the servers, not all, preferably
+ * using a user-selectable hashing algorithm (ketema, python mod, etc.)
  *
- *  It would also be pretty slick we offered the ability to serialize the
- *  sent string in as in PHP, Python, Java, etc.
+ * It would also be pretty slick we offered the ability to serialize the
+ * sent string in as in PHP, Python, Java, etc.
  */
 void MemcacheClient::addItem(QString UNUSED(key), QString UNUSED(data))
 {
@@ -127,7 +120,7 @@ void MemcacheClient::addItem(QString UNUSED(key), QString UNUSED(data))
  */
 void MemcacheClient::readData()
 {
-	QString data_block;
+	QByteArray data_block;
 	char *s;
 	int len, sockid;
 	SingleSocket *c;
@@ -145,7 +138,7 @@ void MemcacheClient::readData()
 			break;
 		}
 
-		s = new char[len+1]();
+		s = new char[len];
 		for (int i = 0; i < len+1; i++) s[i] = 0;
 
 		in.readRawData(s, len);
@@ -169,13 +162,25 @@ void MemcacheClient::handleResponse()
 
 	owner->setBusy(false);
 
+	qDeleteAll(stats);
+	qDeleteAll(get);
+
 	for (i = 0; i < data.size(); i++) {
 		switch (lastCommand) {
 			case STATS_CMD:
 				// clear out old stats
-				if (stats[i]) delete stats[i];
 				stats[i] = new StatData(
-						hosts->at(i)->host->text().append(":").append(hosts->at(i)->port->text()),
+						hosts->at(i)->host->text().append(":").append(
+								hosts->at(i)->port->text()
+						),
+						QString(data[i])
+				);
+				break;
+			case RET_CMD:
+				get[i] = new GetData(
+						hosts->at(i)->host->text().append(":").append(
+								hosts->at(i)->port->text()
+						),
 						data[i]
 				);
 				break;
@@ -187,7 +192,14 @@ void MemcacheClient::handleResponse()
 		}
 	}
 
-	if (lastCommand == STATS_CMD) emit hasNewStats(stats);
+	switch (lastCommand) {
+		case STATS_CMD:
+			emit hasNewStats(stats);
+			break;
+		case RET_CMD:
+			emit hasNewGet(get);
+			break;
+	}
 }
 
 bool MemcacheClient::countResponses()

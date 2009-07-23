@@ -14,6 +14,36 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
 	);
 }
 
+void ConfigDialog::setUseSocks(bool f)
+{
+	m_ui->use_socks->setChecked(f);
+}
+
+void ConfigDialog::setSocksDns(bool f)
+{
+	m_ui->socks_dns->setChecked(f);
+}
+
+void ConfigDialog::setSocksHost(QString host)
+{
+	m_ui->socks_hostname->setText(host);
+}
+
+void ConfigDialog::setSocksPort(QString port)
+{
+	m_ui->socks_port->setText(port);
+}
+
+void ConfigDialog::setSocksUser(QString user)
+{
+	m_ui->socks_username->setText(user);
+}
+
+void ConfigDialog::setSocksPass(QString pass)
+{
+	m_ui->socks_password->setText(pass);
+}
+
 ConfigDialog::~ConfigDialog()
 {
 	delete m_ui->socks_port->validator();

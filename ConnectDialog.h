@@ -23,6 +23,7 @@ public:
 
 public slots:
 	void addServerClicked();
+	void removeServerClicked();
 
 signals:
 	void connectReady();

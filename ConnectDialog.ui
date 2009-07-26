@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>629</width>
+    <width>632</width>
     <height>396</height>
    </rect>
   </property>
@@ -50,6 +50,13 @@
             </property>
            </spacer>
           </item>
+          <item>
+           <widget class="QPushButton" name="removeserver_button">
+            <property name="text">
+             <string>Remove Server</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
@@ -77,7 +84,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>569</width>
+             <width>572</width>
              <height>247</height>
             </rect>
            </property>

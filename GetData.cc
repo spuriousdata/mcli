@@ -26,7 +26,7 @@ GetData::GetData(QString& host, QByteArray& data) : server(host)
 		if (lineParts.length() == 5) {
 			cas = lineParts[4].toULongLong();
 		} else if (lineParts.length() != 4) {
-			qDebug() << "WTF? " << lineParts;
+//			qDebug() << "WTF? " << lineParts;
 		}
 
 		key = lineParts[1];

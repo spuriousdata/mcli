@@ -57,7 +57,7 @@ private:
 		VERSION_CMD
 	} lastCommand;
 	void sendCommandToAll(const char *command, const CommandType cmd_num);
-	void cleanAll();
+	void cleanAll(bool cleanConnections = false);
 
 };
 

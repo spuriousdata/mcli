@@ -15,6 +15,7 @@ ConnectDialog::ConnectDialog(QWidget *parent) :
 	m_ui->setupUi(this);
 
 	connect(m_ui->addserver_button, SIGNAL(clicked()), this, SLOT(addServerClicked()));
+	connect(m_ui->removeserver_button, SIGNAL(clicked()), this, SLOT(removeServerClicked()));
 
 	/* emit a connectRead() signal when the OK button is pushed */
 	connect(m_ui->buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SIGNAL(connectReady()));
@@ -23,6 +24,20 @@ ConnectDialog::ConnectDialog(QWidget *parent) :
 	m_ui->scrolling_contents->layout()->setContentsMargins(0, 0, 0, 0);
 	m_ui->scrolling_contents->layout()->setSizeConstraint(QLayout::SetMinimumSize);
 
+}
+
+void ConnectDialog::removeServerClicked()
+{
+	QLayoutItem *i;
+
+	i = m_ui->scrolling_contents->layout()->takeAt(
+		servers.size()-1
+	);
+
+	m_ui->scrolling_contents->layout()->removeItem(i);
+
+	delete i;
+	servers.pop_back();
 }
 
 void ConnectDialog::addServerClicked()

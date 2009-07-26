@@ -51,15 +51,23 @@ void MemcacheClient::mc_connect(QVector<HostEntry *> &hosts)
 	getStats();
 }
 
-void MemcacheClient::cleanAll()
+void MemcacheClient::cleanAll(bool cleanConnections)
 {
-	qDeleteAll(stats);
-	qDeleteAll(connections);
-	qDeleteAll(get);
+	if (cleanConnections) {
+		qDeleteAll(connections);
+		connections.clear();
+		stats.clear();
+		data.clear();
+	} else {
+		qDeleteAll(stats);
+		qDeleteAll(get);
 
-	connections.clear();
-	stats.clear();
-	data.clear();
+		stats.clear();
+		get.clear();
+
+		stats.resize(connections.size());
+		get.resize(connections.size());
+	}
 }
 
 void MemcacheClient::getStats()
@@ -84,8 +92,7 @@ void MemcacheClient::sendCommandToAll(const char *command, const CommandType cmd
 	lastCommand = cmd_num;
 	responses = 0;
 
-	qDeleteAll(stats);
-	qDeleteAll(get);
+	cleanAll();
 
 	foreach (c, connections) {
 		c->write(command);
@@ -162,9 +169,6 @@ void MemcacheClient::handleResponse()
 
 	owner->setBusy(false);
 
-	qDeleteAll(stats);
-	qDeleteAll(get);
-
 	for (i = 0; i < data.size(); i++) {
 		switch (lastCommand) {
 			case STATS_CMD:
@@ -183,9 +187,6 @@ void MemcacheClient::handleResponse()
 						),
 						data[i]
 				);
-				break;
-			case RET_CMD:
-
 				break;
 			default:
 				break;

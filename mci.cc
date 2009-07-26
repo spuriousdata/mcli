@@ -20,6 +20,8 @@ McI::McI(QWidget *parent)
 	m_ui->add_button->setEnabled(false);
 	connect(m_ui->statsTreeView, SIGNAL(collapsed(QModelIndex)), this, SLOT(resizeTreeColumns(QModelIndex)));
 	connect(m_ui->statsTreeView, SIGNAL(expanded(QModelIndex)), this, SLOT(resizeTreeColumns(QModelIndex)));
+	connect(m_ui->retTreeView, SIGNAL(collapsed(QModelIndex)), this, SLOT(resizeTreeColumns(QModelIndex)));
+	connect(m_ui->retTreeView, SIGNAL(expanded(QModelIndex)), this, SLOT(resizeTreeColumns(QModelIndex)));
 }
 
 void McI::setInputEnabled(bool isEnabled)
@@ -75,6 +77,8 @@ void McI::displayGet(QVector<GetData *> &data)
 	m_ui->retTreeView->setModel(model);
 	for (int i = 0; i < model->columnCount(QModelIndex()); i++)
 		m_ui->retTreeView->resizeColumnToContents(i);
+
+	m_ui->retTreeView->expandAll();
 
 }
 

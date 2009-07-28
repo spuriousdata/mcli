@@ -35,7 +35,11 @@ char *get_active_servername(void);
 char *get_servername(int);
 int communicate(char *);
 char *check_set(char *command);
+char *check_pipe(char *command);
+void set_pipe_command(char *command);
 int parseopts(int argc, char **argv);
 void usage(char *);
+int enbuffer(char **buffer, int *used, int *len, char *data, int data_len);
+void do_pipe_cmd(char *data, int *len);
 
 #endif

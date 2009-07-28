@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <errno.h>
+#include <ctype.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "mci.h"
@@ -17,6 +18,16 @@ int *socks, num_connections = 0;
 int with_server = -1;
 char *conf_file = NULL;
 int verbose = 0;
+typedef enum {
+	NONE,
+	GREP,
+	SORT
+} pipe_cmd_t;
+
+struct {
+	pipe_cmd_t type;
+	char *args;
+} pipe_command = { NONE, NULL };
 
 char *responses[] = {
 	"ERROR\r\n",
@@ -57,6 +68,7 @@ int main(int argc, char **argv)
 		command = readline("memcache> ");
 		if (internal_command(command)) continue;
 		command = check_set(command);
+		command = check_pipe(command);
 
 		if (command && *command) add_history(command);
 		else continue;
@@ -80,6 +92,10 @@ char *check_set(char *command)
 	int j1, j2, datalen;
 
 	if (strncmp(command, "set", 3) != 0 ) return command;
+	else {
+		fprintf(stdout, "'set' not currently implemented\n");
+		return NULL;
+	}
 
 	sscanf(command, "set %s %d %d %d", tmp, &j1, &j2, &datalen); // j1 & j2 are junk and we don't care what they are
 
@@ -117,10 +133,44 @@ char *check_set(char *command)
 	return setcmd;
 }
 
+char *check_pipe(char *command)
+{
+	char *pipe;
+
+	if ((pipe = strchr(command, '|')) == NULL)
+		return command;
+
+	*pipe = 0; // separate out command
+
+	set_pipe_command(pipe++);
+
+	return command;
+}
+
+void set_pipe_command(char *command)
+{
+	while (isspace(command[0]))
+		command++;
+
+	if ((strstr(command, "grep")) == command) {
+		pipe_command.type = GREP;
+		pipe_command.args = command+5;
+	} else if ((strstr(command, "sort")) == command) {
+		pipe_command.type = SORT;
+		pipe_command.args = command+5;
+	} else {
+		pipe_command.type = NONE;
+		pipe_command.args = NULL;
+	}
+}
+
 int communicate(char *msg)
 {
-	int i, numbytes;
-	char buf[BUFSIZ];
+	int i, numbytes, pos, used, len;
+	char *buffer,tmp[BUFSIZ];
+
+	i = numbytes = pos = used = len = 0;
+	buffer = (char *)malloc(BUFSIZ);
 
 	if (with_server == -1 || (strncmp(msg, "get", 3) == 0)) {
 		for (i = 0; i < num_connections; i++) {
@@ -132,13 +182,13 @@ int communicate(char *msg)
 			if (i_verbose) printf("Response from %d: %s\n", i, get_servername(i));
 			
 			do {
-				memset(&buf, 0, BUFSIZ);
-				if ((numbytes = recv(socks[i], &buf, BUFSIZ, 0)) == -1) {
+				memset(&tmp, 0, BUFSIZ);
+				if ((numbytes = recv(socks[i], &tmp, BUFSIZ, 0)) == -1) {
 					fprintf(stderr, "Error reading from server\n");
 					return -1;
 				}
-				write(fileno(stdout), buf, numbytes);
-			} while (check_end_mc_response(buf) == 0);
+				if(enbuffer(&buffer, &used, &len, tmp, numbytes) == -ENOMEM) return -ENOMEM;
+			} while (check_end_mc_response(tmp) == 0);
 		}
 	} else {
 		if (send(socks[with_server], msg, strlen(msg), 0) == -1) {
@@ -147,16 +197,59 @@ int communicate(char *msg)
 		}
 	
 		do {
-			memset(&buf, 0, BUFSIZ);
-			if ((numbytes = recv(socks[with_server], &buf, BUFSIZ, 0)) == -1) {
+			memset(&tmp, 0, BUFSIZ);
+			if ((numbytes = recv(socks[with_server], &tmp, BUFSIZ, 0)) == -1) {
 				fprintf(stderr, "Error reading from server\n");
 				return -1;
 			}
-			write(fileno(stdout), buf, numbytes);
-		} while (check_end_mc_response(buf) == 0);
+			if(enbuffer(&buffer, &used, &len, tmp, numbytes) == -ENOMEM) return -ENOMEM;
+		} while (check_end_mc_response(tmp) == 0);
 	}
 
+	do_pipe_cmd(buffer, &used);
+
+	write(fileno(stdout), buffer, used);
+
 	return 0;
+}
+
+void do_pipe_cmd(char *data, int *len)
+{
+	if (pipe_command.type == GREP) {
+
+	} else if (pipe_command.type == SORT) {
+
+	}
+
+	pipe_command.type = NONE;
+	pipe_command.args = NULL;
+}
+
+int enbuffer(char **buffer, int *used, int *len, char *data, int data_len)
+{
+    char *tmp;
+
+
+    if ((*len - *used) < (BUFSIZ >> 1)) { /* if less than 1/2 of BUFSIZ remains, reallocate */
+#ifdef DEBUG
+        fprintf(stderr, "buffer too small, calling realloc() to double size\n");
+#endif
+        tmp = realloc(*buffer, (*len * 2));
+        *len *= 2;
+        if (tmp == NULL) {
+            /* mem allocation error */
+            /* Should probably kill this thead or something like that */
+            fprintf(stderr, "Error allocating memory, could not realloc()\n");
+            return -ENOMEM;
+        }
+        *buffer = tmp;
+    }
+
+    /* copy data to the end of the existing data */
+    memmove((*buffer + *used), data, data_len);
+    *used += data_len;
+
+    return 0;
 }
 
 int internal_command(char *s)

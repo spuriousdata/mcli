@@ -1,3 +1,20 @@
+2009-07-29 05:34  spuriousdata
+
+	* src/pgrep.c: added pcre_free() call
+
+2009-07-29 05:34  spuriousdata
+
+	* src/mci.c: fixed "Bus error" bug on startup with no mci.conf file
+
+2009-07-29 05:33  spuriousdata
+
+	* configure.ac, src/Makefile.am: added better pcre detection to
+	  configure.ac
+
+2009-07-29 03:38  spuriousdata
+
+	* ChangeLog:
+
 2009-07-29 02:59  spuriousdata
 
 	* src/Makefile.am, src/mci.c, src/pgrep.c, src/pgrep.h: added more

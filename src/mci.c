@@ -170,8 +170,9 @@ int communicate(char *msg)
 	int i, numbytes, pos, used, len;
 	char *buffer,tmp[BUFSIZ];
 
-	i = numbytes = pos = used = len = 0;
+	i = numbytes = pos = used = 0;
 	buffer = (char *)malloc(BUFSIZ);
+	len = BUFSIZ;
 
 	if (with_server == -1 || (strncmp(msg, "get", 3) == 0)) {
 		for (i = 0; i < num_connections; i++) {
@@ -210,6 +211,8 @@ int communicate(char *msg)
 	do_pipe_cmd(buffer, &used);
 
 	write(fileno(stdout), buffer, used);
+
+	free(buffer);
 
 	return 0;
 }
@@ -372,6 +375,8 @@ int connect_serverlist(void)
 {
 	struct __mchost *e;
 	int sockfd;
+
+	if (sl_head == NULL) return -1;
 
 	e = sl_head;
 

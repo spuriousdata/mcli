@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include "pgrep.h"
 #include "mci.h"
 #include "connection.h"
 #include "configure.h"
@@ -216,7 +217,7 @@ int communicate(char *msg)
 void do_pipe_cmd(char *data, int *len)
 {
 	if (pipe_command.type == GREP) {
-
+		fprintf(stdout, pgrep(pipe_command.args, data, *len));
 	} else if (pipe_command.type == SORT) {
 
 	}

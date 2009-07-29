@@ -21,4 +21,6 @@ char *pgrep(char *pattern, char *subject, unsigned datalen)
 				return NULL;
 		}
 	}
+
+	pcre_free(re);
 }

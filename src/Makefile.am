@@ -11,7 +11,3 @@ CFLAGS += -DDEBUG -ggdb
 AM_CFLAGS = -O0
 AM_YFLAGS += --debug
 endif
-
-if USE_PCRE
-CFLAGS += -DPCRE @PCRE_CFLAGS@
-endif

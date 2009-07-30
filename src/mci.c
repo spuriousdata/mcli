@@ -74,6 +74,7 @@ int main(int argc, char **argv)
 		if (command && *command) add_history(command);
 		else continue;
 		msg = (char *)malloc(strlen(command) + 2);
+		memset(msg, 0, strlen(command)+2);
 		memcpy(msg, command, strlen(command));
 		strcat(msg, "\r\n");
 		communicate(msg);
@@ -119,7 +120,7 @@ char *check_set(char *command)
 	memset(command, 0, datalen);
 
 	if (fread(command, 1, datalen, stdin) != datalen) {
-		fprintf(stderr, "Error reading set command from stdin\nexiting\n");	
+		fprintf(stderr, "Error reading set command from stdin\nexiting\n");
 		free(command);
 		exit(-1);
 	}
@@ -143,9 +144,9 @@ char *check_pipe(char *command)
 
 	*pipe = 0; // separate out command
 
-	set_pipe_command(pipe++);
+	set_pipe_command(pipe+1);
 
-	return command;
+	return trim(command);
 }
 
 void set_pipe_command(char *command)
@@ -155,7 +156,7 @@ void set_pipe_command(char *command)
 
 	if ((strstr(command, "grep")) == command) {
 		pipe_command.type = GREP;
-		pipe_command.args = command+5;
+		pipe_command.args = trim(command+5);
 	} else if ((strstr(command, "sort")) == command) {
 		pipe_command.type = SORT;
 		pipe_command.args = command+5;
@@ -180,9 +181,9 @@ int communicate(char *msg)
 				fprintf(stderr, "Error sending data to server\n");
 				return -1;
 			}
-	
+
 			if (i_verbose) printf("Response from %d: %s\n", i, get_servername(i));
-			
+
 			do {
 				memset(&tmp, 0, BUFSIZ);
 				if ((numbytes = recv(socks[i], &tmp, BUFSIZ, 0)) == -1) {
@@ -197,7 +198,7 @@ int communicate(char *msg)
 			fprintf(stderr, "Error sending data to server\n");
 			return -1;
 		}
-	
+
 		do {
 			memset(&tmp, 0, BUFSIZ);
 			if ((numbytes = recv(socks[with_server], &tmp, BUFSIZ, 0)) == -1) {
@@ -231,29 +232,29 @@ void do_pipe_cmd(char *data, int *len)
 
 int enbuffer(char **buffer, int *used, int *len, char *data, int data_len)
 {
-    char *tmp;
+	char *tmp;
 
 
-    if ((*len - *used) < (BUFSIZ >> 1)) { /* if less than 1/2 of BUFSIZ remains, reallocate */
+	if ((*len - *used) < (BUFSIZ >> 1)) { /* if less than 1/2 of BUFSIZ remains, reallocate */
 #ifdef DEBUG
-        fprintf(stderr, "buffer too small, calling realloc() to double size\n");
+		fprintf(stderr, "buffer too small, calling realloc() to double size\n");
 #endif
-        tmp = realloc(*buffer, (*len * 2));
-        *len *= 2;
-        if (tmp == NULL) {
-            /* mem allocation error */
-            /* Should probably kill this thead or something like that */
-            fprintf(stderr, "Error allocating memory, could not realloc()\n");
-            return -ENOMEM;
-        }
-        *buffer = tmp;
-    }
+		tmp = realloc(*buffer, (*len * 2));
+		*len *= 2;
+		if (tmp == NULL) {
+			/* mem allocation error */
+			/* Should probably kill this thead or something like that */
+			fprintf(stderr, "Error allocating memory, could not realloc()\n");
+			return -ENOMEM;
+		}
+		*buffer = tmp;
+	}
 
-    /* copy data to the end of the existing data */
-    memmove((*buffer + *used), data, data_len);
-    *used += data_len;
+	/* copy data to the end of the existing data */
+	memmove((*buffer + *used), data, data_len);
+	*used += data_len;
 
-    return 0;
+	return 0;
 }
 
 int internal_command(char *s)
@@ -270,7 +271,7 @@ int internal_command(char *s)
 		printf(" note that with will never bind 'get' or 'gets' calls\n");
 		return 1;
 	} else if (strncmp(s, "with", 4) == 0) {
-		sscanf(s, "with %d", &with_server);	
+		sscanf(s, "with %d", &with_server);
 		t = get_active_servername();
 		printf("active server is now %d: %s\n", with_server, t);
 		free(t);
@@ -440,7 +441,7 @@ char *get_servername(int snum)
 	while (i++ != snum) {
 		e = e->__next;
 	}
-	
+
 	asprintf(&server, "%s:%d", e->host, e->port);
 
 	return server;

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT(mci, 0.0.2)
+AC_INIT(mci, 0.0.3)
 AM_INIT_AUTOMAKE([foreign]) dnl 'foreign' says not to check for gnu-package-standards (requiring NEWS, README, ChangeLog, etc)
 AC_CONFIG_SRCDIR([src/mci.c])
 AC_CONFIG_HEADER([config.h])

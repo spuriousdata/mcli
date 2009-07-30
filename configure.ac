@@ -13,7 +13,7 @@ AM_PROG_LEX
 AC_PROG_YACC
 AC_PROG_RANLIB
 VL_LIB_READLINE
-AX_PATH_LIB_PCRE
+AX_PATH_LIB_PCRE([], [AC_MSG_ERROR([libpcre not found])])
 
 # Checks for header files.
 AC_HEADER_STDC

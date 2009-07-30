@@ -1,3 +1,32 @@
+2009-07-30 01:45  spuriousdata
+
+	* configure.ac, src/Makefile.am: added failure for pcre not found
+
+2009-07-30 01:04  spuriousdata
+
+	* autogen.sh:
+
+2009-07-30 01:04  spuriousdata
+
+	* src/Makefile.am:
+
+2009-07-29 19:34  spuriousdata
+
+	* autogen.sh, configure.ac, src/Makefile.am: new ac macros
+
+2009-07-29 19:15  spuriousdata
+
+	* acinclude.m4: installed autoconf-archive from nongnu.org --
+	  aclocal will automatically include these now
+
+2009-07-29 05:41  spuriousdata
+
+	* autogen.sh: removing /opt/local/bin prefix from autogen.sh
+
+2009-07-29 05:34  spuriousdata
+
+	* ChangeLog:
+
 2009-07-29 05:34  spuriousdata
 
 	* src/pgrep.c: added pcre_free() call

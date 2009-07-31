@@ -209,7 +209,7 @@ int communicate(char *msg)
 		} while (check_end_mc_response(tmp) == 0);
 	}
 
-	do_pipe_cmd(buffer, &used);
+	buffer = do_pipe_cmd(buffer, &used);
 
 	write(fileno(stdout), buffer, used);
 
@@ -218,16 +218,22 @@ int communicate(char *msg)
 	return 0;
 }
 
-void do_pipe_cmd(char *data, int *len)
+char *do_pipe_cmd(char *data, int *len)
 {
-	if (pipe_command.type == GREP) {
-		fprintf(stdout, pgrep(pipe_command.args, data, *len));
-	} else if (pipe_command.type == SORT) {
+	char *out;
 
+	if (pipe_command.type == GREP) {
+		out = pgrep(pipe_command.args, data, len);
+	} /*else if (pipe_command.type == SORT) {
+
+	}*/ else {
+		out = data;
 	}
 
 	pipe_command.type = NONE;
 	pipe_command.args = NULL;
+
+	return out;
 }
 
 int enbuffer(char **buffer, int *used, int *len, char *data, int data_len)

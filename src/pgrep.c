@@ -3,23 +3,32 @@
 #include <string.h>
 #include "pgrep.h"
 
-char *pgrep(char *pattern, char *subject, unsigned datalen)
+/**
+  * 'grep' for the /pattern/ return a pointer to a list of matched lines
+  * if no matches or an error occurrs, return original string
+  */
+char *pgrep(char *pattern, char *subject, int *datalen)
 {
-	int rc, error_offset, patlen, oveclen, *ovector;
+	int rc, error_offset, patlen, num_matches, possible_matches, subject_len, ovector[9];
 	const char *error;
 	pcre *re;
 	char *fullpattern;
-	char *prefix = "^(.*?";
-	char *postfix = ".*?)$";
-	const char **matches;
+	char *prefix = "^.*?";
+	char *postfix = ".*?$";
+	char **matches;
+	const char *match;
+	char *op;
 
-	/**
-	  * size of ovector should be 3 times (data is returned in triplets)
-	  * the number of possible matches. I'm counting the newlines to determine
-	  * the number of possible matches.
-	  */
-	oveclen = get_count(subject, '\n') * 3;
-	ovector = (int *)malloc(sizeof(int) * oveclen);
+	num_matches = 0;
+	subject_len = *datalen;
+
+	memset(ovector, 0, (9*sizeof(int)));
+
+	/* since this is a grep operation the maximum number of matches is the number
+	   of lines in the subject string */
+	possible_matches = sizeof(char *) * get_count(subject, '\n');
+	matches = (char **)malloc(possible_matches);
+	memset(matches, 0, possible_matches);
 
 	patlen = strlen(prefix) + strlen(postfix) + strlen(pattern) + 1;
 
@@ -30,17 +39,25 @@ char *pgrep(char *pattern, char *subject, unsigned datalen)
 	strcat(fullpattern, pattern);
 	strcat(fullpattern, postfix);
 
-	if ((re = pcre_compile(pattern, (PCRE_NEWLINE_CRLF | PCRE_MULTILINE), &error, &error_offset, NULL)) == NULL) {
+	if ((re = pcre_compile(fullpattern, (PCRE_NEWLINE_CRLF | PCRE_MULTILINE), &error, &error_offset, NULL)) == NULL) {
 		fprintf(stderr, "Regular expression compilation failed at offset %d: %s\n", error_offset, error);
 		return subject;
 	}
 
-	if ((rc = pcre_exec(re, NULL, subject, datalen, 0, 0, ovector, oveclen)) < 0) {
+	op = subject;
+	while ((rc = pcre_exec(re, NULL, op, subject_len, 0, 0, ovector, 9)) == 1) {
+		pcre_get_substring(op, ovector, rc, 0, &match);
+		matches[num_matches++] = match;
+		op += ovector[1];
+		subject_len -= ovector[1];
 
-		free(ovector);
-		free(fullpattern);
-		pcre_free(re);
+		if (subject_len == 0) break;
+	}
 
+	free(fullpattern);
+	pcre_free(re);
+
+	if (rc < 0 && num_matches == 0) {
 		switch (rc) {
 			case PCRE_ERROR_NOMATCH:
 				return subject;
@@ -48,15 +65,44 @@ char *pgrep(char *pattern, char *subject, unsigned datalen)
 				fprintf(stderr, "Unknown PCRE error occurred. Error: %d\n", rc);
 				return subject;
 		}
+	} else if (rc > 1) {
+		fprintf(stderr, "Submatches '(...)' are not allowed in grep operation");
+		return subject;
 	}
 
-	pcre_get_substring_list(subject, ovector, rc, &matches);
-
-	free(ovector);
-	free(fullpattern);
-	pcre_free(re);
+	/* free subject and matches set subject to new concatenated match string */
+	if (num_matches > 0) {
+		free(subject);
+		subject = match_cat(matches, possible_matches);
+		*datalen = strlen(subject);
+		free(matches);
+	}
 
 	return subject;
+}
+
+/* concatenation match strings and free them */
+char *match_cat(char **matches, int max)
+{
+	char *answer, *match;
+	int i, answer_len = 0;
+
+	for (i = 0; i < max; i++) {
+		if ((match = matches[i]) == NULL) break;
+		answer_len += strlen(match)+1;
+	}
+
+	answer = (char *)malloc(answer_len + 1);
+	memset(answer, 0, answer_len + 1);
+
+	for (i = 0; i < max; i++) {
+		if ((match = matches[i]) == NULL) break;
+		strcat(answer, match);
+		strcat(answer, "\n");
+		pcre_free(match); // we can release this memory now
+	}
+
+	return answer;
 }
 
 /**

@@ -43,7 +43,7 @@ HEADERS += mci.h \
 	GetData.h \
 	GetItem.h
 FORMS += mci.ui \
-    connect_dialog.ui \
+    ConnectDialog.ui \
     config.ui \
     KeyValuePrompt.ui \
     BusyIndicator.ui

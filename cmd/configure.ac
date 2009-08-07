@@ -39,7 +39,7 @@ AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS([gethostbyname memset socket strdup strstr strerror strtol getopt memmove strchr])
+AC_CHECK_FUNCS([gethostbyname memset socket strdup strstr strerror strtol getopt memmove strchr strrchr])
 
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT

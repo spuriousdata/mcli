@@ -1,0 +1,14 @@
+mci - command line version
+
+gunzip -c mci-$VERSION.tar.gz | tar -xf -
+cd mci-$VERSION/cmd
+./configure
+make && make install
+
+QtMci - Qt version
+
+gunzip -c mci-$VERSION.tar.gz | tar -xf -
+cd mci-$VERSION/cmd
+qmake
+make && make install
+

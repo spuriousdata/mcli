@@ -1,0 +1,6 @@
+exe mci :
+	parseopts.cc
+	mci.cc
+	/boost/program_options//boost_program_options/<link>static
+	:
+	;

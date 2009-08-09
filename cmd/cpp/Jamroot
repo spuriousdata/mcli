@@ -1,12 +1,7 @@
-project
+project mci
 	: requirements <include>boost-dist
 	;
 
 use-project /boost/program_options : boost-dist/libs/program_options/build ;
 
-exe mci :
-	mci.cc
-	/boost/program_options//boost_program_options/<link>static
-	:
-	<include>/usr/local/include/boost-1_39
-	;
+build-project src ;

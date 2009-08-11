@@ -1,7 +1,0 @@
-project mci
-	: requirements <include>boost-dist
-	;
-
-use-project /boost/program_options : boost-dist/libs/program_options/build ;
-
-build-project src ;

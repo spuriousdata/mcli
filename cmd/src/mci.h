@@ -1,24 +1,18 @@
 #ifndef __MCI_H__
 #define __MCI_H__
 
-#define MC_DEFAULT_PORT 11227
-#define NUMRESP 10
-
-struct __mchost {
-	char *host;
-	int port;
-	struct __mchost *__next;
-};
-
 extern struct __mchost *sl_head;
 extern int _conf_max_connections;
 
 extern FILE *yyin;
-extern int yyparse();
+extern "C" {
+	extern int yyparse();
+	int yylen(void);
+}
+
 #ifdef DEBUG
 extern int yydebug;
 #endif
-extern void initialize_readline();
 
 extern char *optarg;
 extern int optind;

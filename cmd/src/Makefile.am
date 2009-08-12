@@ -1,14 +1,17 @@
 bin_PROGRAMS = mci
 BUILT_SOURCES = parser.h
-CLEANFILES = lexer.c parser.c parser.h parser.output
+CLEANFILES = lexer.c parser.cc parser.h parser.output
 AM_YFLAGS = -d
 AM_CFLAGS = @PCRE_CFLAGS@
-mci_SOURCES = mci.c rl_complete.c connection.c parser.y lexer.l socks.c configure.c pgrep.c util.c
+AM_CXXFLAGS = @PCRE_CFLAGS@
+mci_SOURCES = mci.cc rl_complete.c connection.cc parser.yy lexer.l socks.cc configure.c pgrep.cc util.cc
 mci_LDADD = @LEXLIB@ @PCRE_LIBS@
-EXTRA_DIST = mci.h rl_complete.h connection.h socks.h mci.conf-sample configure.h pgrep.h util.h
+EXTRA_DIST = mci.h rl_complete.h connection.h socks.h mci.conf-sample configure.h pgrep.h util.h hostent.h
 
 if DEBUG
 CFLAGS += -DDEBUG -ggdb
+CXXFLAGS += -DDEBUG -ggdb
 AM_CFLAGS += -O0
+AM_CXXFLAGS += -O0
 AM_YFLAGS += --debug
 endif

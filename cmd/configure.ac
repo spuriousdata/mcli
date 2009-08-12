@@ -4,11 +4,12 @@
 AC_PREREQ(2.61)
 AC_INIT(mci, 0.0.3)
 AM_INIT_AUTOMAKE([foreign]) dnl 'foreign' says not to check for gnu-package-standards (requiring NEWS, README, ChangeLog, etc)
-AC_CONFIG_SRCDIR([src/mci.c])
+AC_CONFIG_SRCDIR([src/mci.cc])
 AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CXX
 AM_PROG_LEX
 AC_PROG_YACC
 AC_PROG_RANLIB

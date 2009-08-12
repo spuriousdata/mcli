@@ -39,6 +39,27 @@
 #	define completion_matches rl_completion_matches
 #endif
 
+char *commands[] = {
+	"set",
+	"add",
+	"replace",
+	"append",
+	"prepend",
+	"cas",
+	"get",
+	"gets",
+	"delete",
+	"incr",
+	"decr",
+	"stats",
+	"flush_all",
+	"version",
+	"quit",
+	"with",
+	"list",
+	NULL
+};
+
 void initialize_readline()
 {
 	rl_readline_name = "mci";

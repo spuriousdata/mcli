@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mci.h"
+#include "hostent.h"
 #include "configure.h"
 
 struct __mchost *sl_head = NULL;

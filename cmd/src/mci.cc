@@ -16,7 +16,7 @@
 #include "connection.h"
 #include "configure.h"
 #include "socks.h"
-//#include "Config.h"
+#include "Configuration.h"
 
 int i_verbose = 0;
 int *socks, num_connections = 0;
@@ -48,7 +48,7 @@ char *responses[] = {
 	NULL
 };
 
-//Config configuration;
+Configuration mciconfig;
 
 int main(int argc, char **argv)
 {
@@ -365,7 +365,7 @@ int configure(void)
 	if (yyin != NULL)
 		yyparse();
 
-	if ((socks = (int *)malloc(sizeof(int) * _conf_max_connections)) == NULL) return -ENOMEM;
+	if ((socks = (int *)malloc(sizeof(int) * mciconfig.get_as_int("max_connections"))) == NULL) return -ENOMEM;
 	return 0;
 }
 

@@ -11,7 +11,7 @@
 
 extern int i_verbose;
 
-int open_connection(char *hostname, int port)
+int open_connection(const char *hostname, int port)
 {
 	struct hostent *host;
 	struct sockaddr_in sa;

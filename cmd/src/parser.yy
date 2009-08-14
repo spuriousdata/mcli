@@ -8,7 +8,9 @@
 
 #include "hostent.h"
 #include "configure.h"
+#include "Configuration.h"
 
+extern Configuration mciconfig;
 extern struct __mchost *sl_head;
 extern struct __mchost *sl_tail;
 
@@ -17,15 +19,6 @@ extern "C" {
 	int yyerror(char *s);
 	int yyparse(void);
 }
-
-int _conf_max_connections = NUMRESP;
-int _conf_use_socks = 0;
-int _conf_socks_proto = 5;
-int _conf_socks_port = 1080;
-int _conf_socks_dns = 0;
-char *_conf_socks_host = NULL;
-char *_conf_socks_username = NULL;
-char *_conf_socks_password = NULL;
 
 char *thost = NULL;
 int tport = -1;
@@ -61,55 +54,55 @@ directive: port_directive
 
 socks_directive: USE_SOCKS NUMBER
 				{
-					_conf_use_socks = $2;
+					mciconfig.set_value("use_socks", $2);
 				}
 				;
 
 socks_directive: SOCKS_DNS NUMBER
 				{
-					_conf_socks_dns = $2;
+					mciconfig.set_value("socks_dns", $2);
 				}
 				;
 
 socks_directive: SOCKS_PROTO NUMBER
 				{
-					_conf_socks_proto = $2;
+					mciconfig.set_value("socks_proto", $2);
 				}
 				;
 
 socks_directive: SOCKS_PORT PORTNUM
 				{
-					_conf_socks_port = $2;
+					mciconfig.set_value("socks_port", $2);
 				}
 				;
 
 socks_directive: SOCKS_HOST HOSTNAME
 				{
-					_conf_socks_host = $2;
+					mciconfig.set_value("socks_host", $2);
 				}
 				;
 
 socks_directive: SOCKS_HOST IPADDR
 				{
-					_conf_socks_host = $2;
+					mciconfig.set_value("socks_host", $2);
 				}
 				;
 
 socks_directive: SOCKS_USERNAME STRING
 				{
-					_conf_socks_username = $2;
+					mciconfig.set_value("socks_username", $2);
 				}
 				;
 
 socks_directive: SOCKS_PASSWORD STRING
 				{
-					_conf_socks_password = $2;
+					mciconfig.set_value("socks_password", $2);
 				}
 				;
 
 maxcon_directive: MAX_CONNECTIONS NUMBER
 				{
-					_conf_max_connections = $2;
+					mciconfig.set_value("max_connections", $2);
 				}
 				;
 

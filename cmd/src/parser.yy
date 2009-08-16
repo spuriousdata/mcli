@@ -109,7 +109,7 @@ maxcon_directive: MAX_CONNECTIONS NUMBER
 server_directive: SERVER HOSTNAME
 				{
 					if (thost != NULL || tport != -1) {
-						add_serverentry(thost, MC_DEFAULT_PORT);
+						add_serverentry(thost, Configuration::MC_DEFAULT_PORT);
 						thost = NULL;
 					}
 					thost = $2;
@@ -119,7 +119,7 @@ server_directive: SERVER HOSTNAME
 server_directive: SERVER IPADDR
                 {
 					if (thost != NULL || tport != -1) {
-						add_serverentry(thost, MC_DEFAULT_PORT);
+						add_serverentry(thost, Configuration::MC_DEFAULT_PORT);
 						thost = NULL;
 					}
 					thost = $2;

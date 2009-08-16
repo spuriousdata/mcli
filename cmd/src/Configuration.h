@@ -7,6 +7,11 @@
 class Configuration
 {
 	public:
+		static const int NUMRESP = 10;
+		static const int MC_DEFAULT_PORT = 11227;
+		static const int SOCKS_DEFAULT_PORT = 1080;
+		static const int SOCKS_DEFAULT_PROTO = 5;
+
 		Configuration();
 		void set_value(const std::string key, const std::string v);
 		void set_value(const std::string key, unsigned int value);

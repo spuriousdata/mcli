@@ -8,14 +8,14 @@
 
 Configuration::Configuration()
 {
-	this->set_value("max_connections", NUMRESP);
-	this->set_value("use_socks", false);
-	this->set_value("socks_proto", 5);
-	this->set_value("socks_port", 1080);
-	this->set_value("socks_dns", false);
-	this->set_value("socks_host", NULL);
-	this->set_value("socks_username", NULL);
-	this->set_value("socks_password", NULL);
+	set_value("max_connections", Configuration::NUMRESP);
+	set_value("use_socks", false);
+	set_value("socks_proto", Configuration::SOCKS_DEFAULT_PROTO);
+	set_value("socks_port", Configuration::SOCKS_DEFAULT_PORT);
+	set_value("socks_dns", false);
+	set_value("socks_host", NULL);
+	set_value("socks_username", NULL);
+	set_value("socks_password", NULL);
 }
 
 void Configuration::set_value(const std::string key, unsigned int value)

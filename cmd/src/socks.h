@@ -9,8 +9,8 @@ extern char *_conf_socks_username;
 extern char *_conf_socks_host;
 extern char *_conf_socks_password;
 
-int socksify(char *, int);
-int socks5_connect(char *, int);
+int socksify(const char *, int);
+int socks5_connect(const char *, int);
 int sendrecv(int, char *, int, char *, int);
 
 #endif

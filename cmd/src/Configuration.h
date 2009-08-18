@@ -2,7 +2,10 @@
 #define __CONFIG_H__
 
 #include <map>
+#include <vector>
 #include <string>
+
+#include "HostEnt.h"
 
 class Configuration
 {
@@ -13,16 +16,26 @@ class Configuration
 		static const int SOCKS_DEFAULT_PROTO = 5;
 
 		Configuration();
+		static Configuration *get_instance();
+
 		void set_value(const std::string key, const std::string v);
 		void set_value(const std::string key, unsigned int value);
-		void Configuration::set_value(const std::string key, int value);
+		void set_value(const std::string key, int value);
 		void set_value(const std::string key, bool value);
+		void add_host(std::string host, unsigned short port);
+		void add_host(std::string hoststr);
 		const std::string get_value(const std::string key) const;
 		const int get_as_int(const std::string key) const;
 		const bool get_as_bool(const std::string key) const;
+		const int num_hosts() const {return hosts.size();}
+		std::vector<HostEnt>::const_iterator hosts_begin() const {return hosts.begin();}
+		std::vector<HostEnt>::const_iterator hosts_end() const {return hosts.end();}
+		const HostEnt& host_at(int i) const {return hosts.at(i);}
 
 	private:
 		std::map<const std::string, std::string> data;
+		std::vector<HostEnt> hosts;
+		static Configuration *instance;
 
 };
 

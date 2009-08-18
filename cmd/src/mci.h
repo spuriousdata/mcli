@@ -1,9 +1,6 @@
 #ifndef __MCI_H__
 #define __MCI_H__
 
-extern struct __mchost *sl_head;
-extern int _conf_max_connections;
-
 extern FILE *yyin;
 extern "C" {
 	extern int yyparse();
@@ -25,8 +22,8 @@ int initialize(void);
 int configure(void);
 int connect_serverlist(void);
 int cleanup(void);
-char *get_active_servername(void);
-char *get_servername(int);
+const char *get_active_servername(void);
+const char *get_servername(int);
 int communicate(char *);
 char *check_set(char *command);
 char *check_pipe(char *command);

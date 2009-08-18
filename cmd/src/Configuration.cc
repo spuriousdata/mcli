@@ -2,20 +2,30 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+#include <stdexcept>
 
-#include "hostent.h"
+#include "HostEnt.h"
 #include "Configuration.h"
+
+Configuration *Configuration::instance = NULL;
 
 Configuration::Configuration()
 {
-	set_value("max_connections", Configuration::NUMRESP);
+	set_value("max_connections", NUMRESP);
 	set_value("use_socks", false);
-	set_value("socks_proto", Configuration::SOCKS_DEFAULT_PROTO);
-	set_value("socks_port", Configuration::SOCKS_DEFAULT_PORT);
+	set_value("socks_proto", SOCKS_DEFAULT_PROTO);
+	set_value("socks_port", SOCKS_DEFAULT_PORT);
 	set_value("socks_dns", false);
 	set_value("socks_host", NULL);
 	set_value("socks_username", NULL);
 	set_value("socks_password", NULL);
+}
+
+Configuration *Configuration::get_instance()
+{
+	if (instance == NULL)
+		instance = new Configuration();
+	return instance;
 }
 
 void Configuration::set_value(const std::string key, unsigned int value)
@@ -23,7 +33,7 @@ void Configuration::set_value(const std::string key, unsigned int value)
 	std::stringstream s;
 	s << value;
 #ifdef DEBUG
-	std::cerr << "Setting configuration value " << key << " to " << s.str();
+	std::cerr << "Setting configuration value " << key << " to " << s.str() << std::endl;
 #endif
 	set_value(key, s.str());
 }
@@ -36,7 +46,7 @@ void Configuration::set_value(const std::string key, int value)
 void Configuration::set_value(const std::string key, const std::string value)
 {
 #ifdef DEBUG
-	std::cerr << "Setting configuration value " << key << " to " << value;
+	std::cerr << "Setting configuration value " << key << " to " << value << std::endl;
 #endif
 	data[key] = value;
 }
@@ -45,7 +55,33 @@ void Configuration::set_value(const std::string key, bool value)
 {
 	std::stringstream s;
 	s << std::boolalpha << value;
+#ifdef DEBUG
+	std::cerr << "Setting configuration value " << key << " to " << std::boolalpha << s.str() << std::endl;
+#endif
 	set_value(key, s.str());
+}
+
+void Configuration::add_host(std::string host, unsigned short port)
+{
+	hosts.push_back(HostEnt(host,port));
+}
+
+void Configuration::add_host(std::string hoststr)
+{
+	size_t colon;
+	std::stringstream portstr;
+	std::string host;
+	
+	unsigned short port;
+
+	if ((colon = hoststr.find(':')) == std::string::npos)
+		throw std::invalid_argument(std::string(hoststr).append(" is not a valid server"));
+
+	host = hoststr.substr(0, colon);
+	portstr << hoststr.substr(colon+1);
+	portstr >> port;
+
+	add_host(host,port);
 }
 
 const std::string Configuration::get_value(const std::string key) const

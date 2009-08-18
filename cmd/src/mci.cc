@@ -1,3 +1,7 @@
+#include <iostream>
+#include <vector>
+#include <stdexcept>
+#include <sstream>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -9,14 +13,13 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "pgrep.h"
-#include "hostent.h"
 #include "mci.h"
 #include "util.h"
 #include "rl_complete.h"
 #include "connection.h"
-#include "configure.h"
 #include "socks.h"
 #include "Configuration.h"
+#include "HostEnt.h"
 
 int i_verbose = 0;
 int *socks, num_connections = 0;
@@ -47,8 +50,6 @@ char *responses[] = {
 	"NOT_FOUND\r\n",
 	NULL
 };
-
-Configuration mciconfig;
 
 int main(int argc, char **argv)
 {
@@ -280,13 +281,13 @@ int internal_command(char *s)
 		return 1;
 	} else if (strncmp(s, "with", 4) == 0) {
 		sscanf(s, "with %d", &with_server);
-		t = get_active_servername();
+		t = const_cast<char *>(get_active_servername());
 		printf("active server is now %d: %s\n", with_server, t);
 		free(t);
 		return 1;
 	} else if (strncmp(s, "list", 4) == 0) {
 		for (i = 0; i < num_connections; i++) {
-			t = get_servername(i);
+			t = const_cast<char *>(get_servername(i));
 			printf(" %d: %s\n", i, t);
 			free(t);
 		}
@@ -314,6 +315,7 @@ int check_end_mc_response(char *buf)
 
 int parseopts(int argc, char **argv)
 {
+	Configuration *config = Configuration::get_instance();
 	int o;
 
 	while ((o = getopt(argc, argv, "vhc:s:")) != -1) {
@@ -325,10 +327,10 @@ int parseopts(int argc, char **argv)
 				conf_file = optarg;
 				break;
 			case 's':
-				if (add_serverentry_str(optarg) == -1) {
-					fprintf(stderr, "There was an error adding the server %s\n", optarg);
+				try {
+					config->add_host(optarg);
+				} catch (...) {
 					usage(argv[0]);
-					exit(-1);
 				}
 				break;
 			case 'h':
@@ -355,6 +357,7 @@ int initialize(void)
 
 int configure(void)
 {
+	Configuration *mciconfig = Configuration::get_instance();
 #ifdef DEBUG
 	yydebug = 1;
 #endif
@@ -365,26 +368,25 @@ int configure(void)
 	if (yyin != NULL)
 		yyparse();
 
-	if ((socks = (int *)malloc(sizeof(int) * mciconfig.get_as_int("max_connections"))) == NULL) return -ENOMEM;
+	if ((socks = (int *)malloc(sizeof(int) * mciconfig->get_as_int("max_connections"))) == NULL) return -ENOMEM;
 	return 0;
 }
 
 int connect_serverlist(void)
 {
-	struct __mchost *e;
 	int sockfd;
+	Configuration *config = Configuration::get_instance();
 
-	if (sl_head == NULL) return -1;
+	if (config->num_hosts() < 1) return -1;
 
-	e = sl_head;
-
-	do {
-		if ((sockfd = socksify(e->host, e->port)) == -1) {
+	for (std::vector<HostEnt>::const_iterator i = config->hosts_begin(); i != config->hosts_end(); i++) {
+		HostEnt e = *i;
+		if ((sockfd = socksify(e.host.c_str(), e.port)) == -1) {
 			fprintf(stderr, "Error with socks connection\n");
 			return -1;
 		} else if (sockfd == 0) {
 			// don't use socks
-			if ((socks[num_connections++] = open_connection(e->host, e->port)) == -1) {
+			if ((socks[num_connections++] = open_connection(e.host.c_str(), e.port)) == -1) {
 				fprintf(stderr, "Error connecting to socket\n");
 				return -1;
 			}
@@ -392,54 +394,45 @@ int connect_serverlist(void)
 			// use socks
 			socks[num_connections++] = sockfd;
 		}
-	} while ((e = e->__next) != NULL);
+	}
+
 	return 0;
 }
 
 int cleanup(void)
 {
-	struct __mchost *e, *f;
 	int i;
 
 	for (i = 0; i < num_connections; i++) {
 		close(socks[i]);
 	}
 
-	e = sl_head;
-	do {
-		f = e->__next;
-		free(e->host);
-		free(e);
-	} while ((e = f) != NULL);
-
 	return 0;
 }
 
 /* returns pointer to newly allocated string -- caller must free */
-char *get_active_servername(void)
+const char *get_active_servername(void)
 {
 	return get_servername(with_server);
 }
 
 /* returns pointer to newly allocated string -- caller must free */
-char *get_servername(int snum)
+const char *get_servername(int snum)
 {
-	struct __mchost *e;
-	int len, i = 0;
-	char *server;
+	std::stringstream server;
+	Configuration *config = Configuration::get_instance();
 
 	if (snum < 0) {
-		asprintf(&server, "All");
-		return server;
+		server << "All";
+	} else {
+		try {
+			HostEnt h = config->host_at(snum);
+			server << h.host << ":" << h.port;
+		} catch (std::out_of_range &e) {
+			std::cerr << "Host index " << snum << " is out of range, max index is " << config->num_hosts()-1 << std::endl;
+			server << "";
+		}
 	}
 
-	e = sl_head;
-
-	while (i++ != snum) {
-		e = e->__next;
-	}
-
-	asprintf(&server, "%s:%d", e->host, e->port);
-
-	return server;
+	return server.str().c_str();
 }

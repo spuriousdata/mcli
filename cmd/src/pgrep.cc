@@ -1,3 +1,5 @@
+#ifdef HAVE_LIBPCRE
+
 #include <pcre.h>
 #include <cstdio>
 #include <cstring>
@@ -124,3 +126,5 @@ int get_count(char *s, char ch)
 	free(_s);
 	return count;
 }
+
+#endif

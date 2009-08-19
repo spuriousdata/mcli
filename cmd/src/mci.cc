@@ -12,7 +12,6 @@
 #include <unistd.h>
 #include <readline/readline.h>
 #include <readline/history.h>
-#include "pgrep.h"
 #include "mci.h"
 #include "util.h"
 #include "rl_complete.h"
@@ -20,6 +19,9 @@
 #include "socks.h"
 #include "Configuration.h"
 #include "HostEnt.h"
+#ifdef HAVE_LIBPCRE
+#include "pgrep.h"
+#endif
 
 int i_verbose = 0;
 int *socks, num_connections = 0;
@@ -224,7 +226,9 @@ int communicate(char *msg)
 char *do_pipe_cmd(char *data, int *len)
 {
 	char *out;
-
+#ifndef HAVE_LIBPCRE
+	return data;
+#else
 	if (pipe_command.type == GREP) {
 		out = pgrep(pipe_command.args, data, len);
 	} /*else if (pipe_command.type == SORT) {
@@ -237,6 +241,7 @@ char *do_pipe_cmd(char *data, int *len)
 	pipe_command.args = NULL;
 
 	return out;
+#endif
 }
 
 int enbuffer(char **buffer, int *used, int *len, char *data, int data_len)
@@ -268,7 +273,6 @@ int enbuffer(char **buffer, int *used, int *len, char *data, int data_len)
 
 int internal_command(char *s)
 {
-	char *t;
 	int i;
 
 	if (strncmp(s, "quit", 4) == 0) {
@@ -281,15 +285,11 @@ int internal_command(char *s)
 		return 1;
 	} else if (strncmp(s, "with", 4) == 0) {
 		sscanf(s, "with %d", &with_server);
-		t = const_cast<char *>(get_active_servername());
-		printf("active server is now %d: %s\n", with_server, t);
-		free(t);
+		printf("active server is now %d: %s\n", with_server, get_active_servername());
 		return 1;
 	} else if (strncmp(s, "list", 4) == 0) {
 		for (i = 0; i < num_connections; i++) {
-			t = const_cast<char *>(get_servername(i));
-			printf(" %d: %s\n", i, t);
-			free(t);
+			printf(" %d: %s\n", i, get_servername(i));
 		}
 		return 1;
 	} else if (strncmp(s, "verbose", 7) == 0) {
@@ -410,13 +410,11 @@ int cleanup(void)
 	return 0;
 }
 
-/* returns pointer to newly allocated string -- caller must free */
 const char *get_active_servername(void)
 {
 	return get_servername(with_server);
 }
 
-/* returns pointer to newly allocated string -- caller must free */
 const char *get_servername(int snum)
 {
 	std::stringstream server;

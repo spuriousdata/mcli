@@ -1,4 +1,4 @@
-#include "memcacheclient.h"
+#include "MemcacheClient.h"
 #include "hostentry.h"
 #include "singlesocket.h"
 #include "StatData.h"

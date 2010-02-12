@@ -6,9 +6,9 @@ TARGET = McI
 TEMPLATE = app
 SOURCES += main.cc \
     mci.cc \
-    hostentry.cc \
+    HostEntry.cc \
     singlesocket.cc \
-    memcacheclient.cc \
+    MemcacheClient.cc \
     ConnectDialog.cc \
     ConfigDialog.cc \
     TreeNode.cc \
@@ -24,9 +24,9 @@ SOURCES += main.cc \
     GetData.cc \
     GetItem.cc
 HEADERS += mci.h \
-    hostentry.h \
+    HostEntry.h \
     singlesocket.h \
-    memcacheclient.h \
+    MemcacheClient.h \
     ConnectDialog.h \
     ConfigDialog.h \
     TreeNode.h \

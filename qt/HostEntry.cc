@@ -1,4 +1,4 @@
-#include "hostentry.h"
+#include "HostEntry.h"
 
 QRegExp HostEntry::port_regex = QRegExp("[1-9][0-9]{0,4}");
 

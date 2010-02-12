@@ -14,7 +14,7 @@ AM_PROG_LEX
 AC_PROG_YACC
 AC_PROG_RANLIB
 VL_LIB_READLINE
-AX_PATH_LIB_PCRE([], [AC_MSG_ERROR([libpcre not found])])
+AX_PATH_LIB_PCRE([], [AC_MSG_WARN([libpcre not found])])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -40,6 +40,7 @@ AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_TYPE_SIGNAL
+AC_TYPE_SIZE_T
 AC_CHECK_FUNCS([gethostbyname memset socket strdup strstr strerror strtol getopt memmove strchr strrchr])
 
 AC_CONFIG_FILES([Makefile src/Makefile])

@@ -7,27 +7,22 @@
 #include <cstring>
 #include <cerrno>
 #include <cctype>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "mci.h"
 #include "util.h"
 #include "rl_complete.h"
-#include "connection.h"
-#include "socks.h"
 #include "Configuration.h"
 #include "HostEnt.h"
+#include "MemcacheClient.h"
+#include "InputInterpreter.h"
 #ifdef HAVE_LIBPCRE
 #include "pgrep.h"
 #endif
 
-int i_verbose = 0;
 int *socks, num_connections = 0;
 int with_server = -1;
 char *conf_file = NULL;
-int verbose = 0;
 typedef enum {
 	NONE,
 	GREP,
@@ -53,16 +48,20 @@ char *responses[] = {
 	NULL
 };
 
+MemcacheClient *mc;
+InputInterpreter *ii;
+
 int main(int argc, char **argv)
 {
 	int port;
 	char *msg, *command = (char *)NULL;
+	Configuration *config;
 
 	if (parseopts(argc, argv) != 0) return -1;
-
 	if (initialize() == -1) return -1;
-
 	initialize_readline();
+
+	config = Configuration::get_instance();
 
 	while (1) {
 
@@ -71,91 +70,35 @@ int main(int argc, char **argv)
 			command = (char *)NULL;
 		}
 
+		if (mc->data_exists()) {
+			for (int i = 0; i < config->num_hosts(); i++ ) {
+				if (mc->get_data(i).length() > 0) {
+					std::cout << "From " << config->host_at(i).host << ":" << config->host_at(i).port << std::endl;
+					std::cout << mc->get_data(i) << std::endl;
+				}
+			}
+		}
+
 		command = readline("memcache> ");
-		if (internal_command(command)) continue;
-		if ((command = check_set(command)) == NULL) continue;
-		command = check_pipe(command);
 
-		if (command && *command) add_history(command);
-		else continue;
-		msg = (char *)malloc(strlen(command) + 2);
-		memset(msg, 0, strlen(command)+2);
-		memcpy(msg, command, strlen(command));
-		strcat(msg, "\r\n");
-		communicate(msg);
-		free(msg);
+		if (command && *command) {
+			add_history(command);
+
+			if (internal_command(command)) continue;
+			//command = check_pipe(command);
+			
+			ii->interpret(command);
+		}
 	}
 
-	if (cleanup() != 0) return -1;
+	cleanup();
 	return 0;
-}
-
-/* if comand is a set command, return a newly allocated string containing whole set command
- * else return original command
- */
-char *check_set(char *command)
-{
-	char *setcmd, *tmp;
-	int j1, j2, datalen;
-
-	if (strncmp(command, "set", 3) != 0 ) return command;
-	else {
-		fprintf(stdout, "'set' not currently implemented\n");
-		return NULL;
-	}
-
-	sscanf(command, "set %s %d %d %d", tmp, &j1, &j2, &datalen); // j1 & j2 are junk and we don't care what they are
-
-	if ((setcmd = (char *)malloc(strlen(command) + 3)) == NULL) {
-		fprintf(stderr, "Error allocating memory\n");
-		exit(-1);
-	}
-	memset(setcmd, 0, strlen(command) + 3);
-	memcpy(setcmd, command, strlen(command));
-	strcat(setcmd, "\r\n");
-
-	free(command);
-
-	fputs("set> ", stdout);
-	if ((command = (char *)malloc(datalen)) == NULL) {
-		fprintf(stderr, "Error allocating memory\n");
-		exit(-1);
-	}
-
-	memset(command, 0, datalen);
-
-	if (fread(command, 1, datalen, stdin) != datalen) {
-		fprintf(stderr, "Error reading set command from stdin\nexiting\n");
-		free(command);
-		exit(-1);
-	}
-
-	tmp = setcmd;
-	setcmd = (char *)malloc(strlen(setcmd) + datalen);
-	memset(setcmd, 0, strlen(setcmd) + datalen);
-	strncat(setcmd, tmp, strlen(tmp));
-	strncat(setcmd, command, datalen);
-	free(tmp);
-	free(command);
-	return setcmd;
-}
-
-char *check_pipe(char *command)
-{
-	char *pipe;
-
-	if ((pipe = strchr(command, '|')) == NULL)
-		return command;
-
-	*pipe = 0; // separate out command
-
-	set_pipe_command(pipe+1);
-
-	return trim(command);
 }
 
 void set_pipe_command(char *command)
 {
+	return;
+	/*
 	while (isspace(command[0]))
 		command++;
 
@@ -169,58 +112,7 @@ void set_pipe_command(char *command)
 		pipe_command.type = NONE;
 		pipe_command.args = NULL;
 	}
-}
-
-int communicate(char *msg)
-{
-	int i, numbytes, pos, used, len;
-	char *buffer,tmp[BUFSIZ];
-
-	i = numbytes = pos = used = 0;
-	buffer = (char *)malloc(BUFSIZ);
-	len = BUFSIZ;
-
-	if (with_server == -1 || (strncmp(msg, "get", 3) == 0)) {
-		for (i = 0; i < num_connections; i++) {
-			if (send(socks[i], msg, strlen(msg), 0) == -1) {
-				fprintf(stderr, "Error sending data to server\n");
-				return -1;
-			}
-
-			if (i_verbose) printf("Response from %d: %s\n", i, get_servername(i));
-
-			do {
-				memset(&tmp, 0, BUFSIZ);
-				if ((numbytes = recv(socks[i], &tmp, BUFSIZ, 0)) == -1) {
-					fprintf(stderr, "Error reading from server\n");
-					return -1;
-				}
-				if(enbuffer(&buffer, &used, &len, tmp, numbytes) == -ENOMEM) return -ENOMEM;
-			} while (check_end_mc_response(tmp) == 0);
-		}
-	} else {
-		if (send(socks[with_server], msg, strlen(msg), 0) == -1) {
-			fprintf(stderr, "Error sending data to server\n");
-			return -1;
-		}
-
-		do {
-			memset(&tmp, 0, BUFSIZ);
-			if ((numbytes = recv(socks[with_server], &tmp, BUFSIZ, 0)) == -1) {
-				fprintf(stderr, "Error reading from server\n");
-				return -1;
-			}
-			if(enbuffer(&buffer, &used, &len, tmp, numbytes) == -ENOMEM) return -ENOMEM;
-		} while (check_end_mc_response(tmp) == 0);
-	}
-
-	buffer = do_pipe_cmd(buffer, &used);
-
-	write(fileno(stdout), buffer, used);
-
-	free(buffer);
-
-	return 0;
+	*/
 }
 
 char *do_pipe_cmd(char *data, int *len)
@@ -242,33 +134,6 @@ char *do_pipe_cmd(char *data, int *len)
 
 	return out;
 #endif
-}
-
-int enbuffer(char **buffer, int *used, int *len, char *data, int data_len)
-{
-	char *tmp;
-
-
-	if ((*len - *used) < (BUFSIZ >> 1)) { /* if less than 1/2 of BUFSIZ remains, reallocate */
-#ifdef DEBUG
-		fprintf(stderr, "buffer too small, calling realloc() to double size\n");
-#endif
-		tmp = (char *)realloc(*buffer, (*len * 2));
-		*len *= 2;
-		if (tmp == NULL) {
-			/* mem allocation error */
-			/* Should probably kill this thead or something like that */
-			fprintf(stderr, "Error allocating memory, could not realloc()\n");
-			return -ENOMEM;
-		}
-		*buffer = tmp;
-	}
-
-	/* copy data to the end of the existing data */
-	memmove((*buffer + *used), data, data_len);
-	*used += data_len;
-
-	return 0;
 }
 
 int internal_command(char *s)
@@ -293,23 +158,10 @@ int internal_command(char *s)
 		}
 		return 1;
 	} else if (strncmp(s, "verbose", 7) == 0) {
-		if (i_verbose == 0) i_verbose = 1;
-		else i_verbose = 0;
-		printf("verbose: %s\n", ((i_verbose) ? "on" : "off"));
+		Configuration::get_instance()->toggle_bool("verbose");
+		printf("verbose: %s\n", Configuration::get_instance()->get_value("verbose").c_str());
 		return 1;
 	}
-	return 0;
-}
-
-int check_end_mc_response(char *buf)
-{
-	int i = 0;
-	char *response;
-
-	while ((response = responses[i++]) != NULL) {
-		if (strstr(buf, response) != NULL) return 1;
-	}
-
 	return 0;
 }
 
@@ -321,7 +173,7 @@ int parseopts(int argc, char **argv)
 	while ((o = getopt(argc, argv, "vhc:s:")) != -1) {
 		switch(o) {
 			case 'v':
-				verbose = 1;
+				config->set_value("verbose", true);
 				break;
 			case 'c':
 				conf_file = optarg;
@@ -351,7 +203,9 @@ void usage(char *name)
 int initialize(void)
 {
 	if (configure() != 0) return -1;
-	if (connect_serverlist() != 0) return -1;
+	mc = new MemcacheClient(Configuration::get_instance()->get_hosts());
+	ii = new InputInterpreter(mc);
+
 	return 0;
 }
 
@@ -368,46 +222,13 @@ int configure(void)
 	if (yyin != NULL)
 		yyparse();
 
-	if ((socks = (int *)malloc(sizeof(int) * mciconfig->get_as_int("max_connections"))) == NULL) return -ENOMEM;
 	return 0;
 }
 
-int connect_serverlist(void)
+void cleanup(void)
 {
-	int sockfd;
-	Configuration *config = Configuration::get_instance();
-
-	if (config->num_hosts() < 1) return -1;
-
-	for (std::vector<HostEnt>::const_iterator i = config->hosts_begin(); i != config->hosts_end(); i++) {
-		HostEnt e = *i;
-		if ((sockfd = socksify(e.host.c_str(), e.port)) == -1) {
-			fprintf(stderr, "Error with socks connection\n");
-			return -1;
-		} else if (sockfd == 0) {
-			// don't use socks
-			if ((socks[num_connections++] = open_connection(e.host.c_str(), e.port)) == -1) {
-				fprintf(stderr, "Error connecting to socket\n");
-				return -1;
-			}
-		} else {
-			// use socks
-			socks[num_connections++] = sockfd;
-		}
-	}
-
-	return 0;
-}
-
-int cleanup(void)
-{
-	int i;
-
-	for (i = 0; i < num_connections; i++) {
-		close(socks[i]);
-	}
-
-	return 0;
+	delete mc;
+	delete ii;
 }
 
 const char *get_active_servername(void)

@@ -1,43 +1,23 @@
-#include <string.h>
-#include <ctype.h>
+#include <string>
 #include "util.h"
 
-char *rtrim(char *s)
+std::string rtrim(std::string s)
 {
-	register char *end;
-	register int len;
+	size_t e;
 
-	len = strlen(s);
-	while (*s && len) {
-		end = s + (len-1);
-		if (isspace(*end)) *end = 0;
-		else break;
-		len = strlen(s);
-	}
-	return s;
+	e = s.find_last_not_of(" \t\r\n");
+	return s.substr(0, e+1);
 }
 
-char *ltrim(char *s)
+std::string ltrim(std::string s)
 {
-	register char *c;
-	register int len;
+	size_t e;
 
-	len = strlen(s);
-	c = s;
-	while (*c && len) {
-		if (isspace(*c)) c++;
-		else break;
-	}
-
-	/**
-	 * copy the new string back to the old string and return it. We do this
-	 * in case s was malloc'd -- this way it can be free'd
-	 */
-	memmove(s, c, len-strlen(c));
-	return s;
+	e = s.find_first_not_of(" \t\r\n");
+	return s.substr(e);
 }
 
-char *trim(char *s)
+std::string trim(std::string s)
 {
 	return ltrim(rtrim(s));
 }

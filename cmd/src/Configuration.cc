@@ -12,6 +12,7 @@ Configuration *Configuration::instance = NULL;
 Configuration::Configuration()
 {
 	set_value("max_connections", NUMRESP);
+	set_value("memcache_protocol", MC_PROTO_TEXT);
 	set_value("use_socks", false);
 	set_value("socks_proto", SOCKS_DEFAULT_PROTO);
 	set_value("socks_port", SOCKS_DEFAULT_PORT);
@@ -19,6 +20,7 @@ Configuration::Configuration()
 	set_value("socks_host", NULL);
 	set_value("socks_username", NULL);
 	set_value("socks_password", NULL);
+	set_value("verbose", false);
 }
 
 Configuration *Configuration::get_instance()
@@ -128,3 +130,12 @@ const bool Configuration::get_as_bool(const std::string key) const
 
 	return b;
 }
+
+const bool Configuration::toggle_bool(const std::string key)
+{
+	if (get_as_bool(key) == true) set_value(key, false);
+	set_value(key, true);
+
+	return get_as_bool(key);
+}
+

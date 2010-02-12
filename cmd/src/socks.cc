@@ -8,23 +8,6 @@
 #include <netdb.h>
 #include <unistd.h> //for close()
 
-#include "socks.h"
-#include "connection.h"
-#include "Configuration.h"
-
-extern int i_verbose;
-
-int socksify(const char *hostname, int port)
-{
-	Configuration *mciconfig = Configuration::get_instance();
-	if (mciconfig->get_as_bool("use_socks") == false) return 0; // don't use socks
-
-	if (mciconfig->get_as_int("socks_proto") == 5) return socks5_connect(hostname, port);
-	else {
-		fprintf(stderr, "Invalid SOCKS protocol specified\n");
-		return -1;
-	}
-}
 
 int socks5_connect(const char *hostname, int port)
 {
@@ -50,7 +33,7 @@ int socks5_connect(const char *hostname, int port)
 		return sockfd;
 	}
 
-	if (i_verbose) printf("Connected to socks proxy %s:%d\n", mciconfig->get_value("socks_host").c_str(), mciconfig->get_as_int("socks_port"));
+	if (mciconfig->get_as_bool("verbose")) printf("Connected to socks proxy %s:%d\n", mciconfig->get_value("socks_host").c_str(), mciconfig->get_as_int("socks_port"));
 
 	sendrecv(sockfd, sockspkt, (mciconfig->get_value("socks_username").empty() ? 3 : 4), socksresp, BUFSIZ);
 

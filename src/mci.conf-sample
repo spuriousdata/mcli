@@ -1,0 +1,20 @@
+# Maximum number of connections 
+max_connections 10
+
+# List of servers to connect to 
+
+server memcache1.example.com:11227
+server memcache2.example.com:11227
+server memcache3.example.com:11227
+server memcache4.example.com:11227
+server memcache5.example.com:11227
+server memcache6.example.com:11227
+
+# use SOCKS ?
+use_socks 1
+socks_proto 5
+socks_host localhost
+socks_port 8002
+#socks_username
+#socks_password
+

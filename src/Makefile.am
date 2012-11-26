@@ -10,5 +10,5 @@ EXTRA_DIST = mci.h rl_complete.h connection.h socks.h mci.conf-sample configure.
 if DEBUG
 CFLAGS += -DDEBUG -ggdb
 AM_CFLAGS += -O0
-AM_YFLAGS += --debug
+#AM_YFLAGS += --debug
 endif

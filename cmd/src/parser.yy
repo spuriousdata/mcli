@@ -5,8 +5,9 @@
 #include <cstdlib>
 #include <errno.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 
-#include "hostent.h"
+//#include "hostent.h"
 #include "Configuration.h"
 
 extern struct __mchost *sl_head;
@@ -53,7 +54,7 @@ directive: port_directive
 socks_directive: USE_SOCKS NUMBER
 				{
 					Configuration *mciconfig = Configuration::get_instance();
-					mciconfig->set_value("use_socks", $2);
+					mciconfig->set_value("use_socks", (bool)$2);
 				}
 				;
 
@@ -81,14 +82,14 @@ socks_directive: SOCKS_PORT PORTNUM
 socks_directive: SOCKS_HOST HOSTNAME
 				{
 					Configuration *mciconfig = Configuration::get_instance();
-					mciconfig->set_value("socks_host", $2);
+					mciconfig->set_value("socks_host", (char *)$2);
 				}
 				;
 
 socks_directive: SOCKS_HOST IPADDR
 				{
 					Configuration *mciconfig = Configuration::get_instance();
-					mciconfig->set_value("socks_host", $2);
+					mciconfig->set_value("socks_host", (char *)$2);
 				}
 				;
 

@@ -17,9 +17,9 @@ Configuration::Configuration()
 	set_value("socks_proto", SOCKS_DEFAULT_PROTO);
 	set_value("socks_port", SOCKS_DEFAULT_PORT);
 	set_value("socks_dns", false);
-	set_value("socks_host", NULL);
-	set_value("socks_username", NULL);
-	set_value("socks_password", NULL);
+	set_value("socks_host", (char *)NULL);
+	set_value("socks_username", (char *)NULL);
+	set_value("socks_password", (char *)NULL);
 	set_value("verbose", false);
 }
 

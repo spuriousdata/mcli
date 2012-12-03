@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT(mci, 0.0.3)
+AC_INIT(mcli, 0.1.0)
 AM_INIT_AUTOMAKE([foreign]) dnl 'foreign' says not to check for gnu-package-standards (requiring NEWS, README, ChangeLog, etc)
 AC_CONFIG_SRCDIR([src/mci.cc])
 AC_CONFIG_HEADER([config.h])
@@ -13,6 +13,7 @@ AC_PROG_CXX
 AM_PROG_LEX
 AC_PROG_YACC
 AC_PROG_RANLIB
+AC_CHECK_LIB(pthread, pthread_create,,[AC_MSG_ERROR([required library pthread missing])])
 VL_LIB_READLINE
 AX_PATH_LIB_PCRE([], [AC_MSG_WARN([libpcre not found])])
 

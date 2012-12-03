@@ -9,6 +9,7 @@
 #include <cctype>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <unistd.h>
 #include "mci.h"
 #include "util.h"
 #include "rl_complete.h"

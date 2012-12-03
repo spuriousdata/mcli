@@ -9,6 +9,7 @@
 #include <netinet/in.h>     // sockaddr_in
 #include <arpa/inet.h>      // htons()
 #include <netdb.h>          // gethostbyname(), struct hostent
+#include <stdio.h>
 
 #include "Configuration.h"
 #include "Connection.h"
